@@ -1,0 +1,44 @@
+{
+	"name": "vite-plugin-meta",
+	"version": "1.0.0",
+	"description": "",
+	"type": "module",
+	"main": "dist/index.js",
+	"module": "dist/index.mjs",
+	"exports": {
+		"import": "./dist/index.mjs",
+		"require": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		}
+	},
+	"scripts": {
+		"clean": "rm -r dist",
+		"bundle": "tsup-node src/index.ts --sourcemap --dts --format cjs,esm",
+		"dev": "pnpm bundle --watch",
+		"build": "pnpm clean && pnpm bundle"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"ffmpeg-static": "^5.1.0",
+		"get-audio-duration": "^3.1.1",
+		"picocolors": "^1.0.0",
+		"sharp": "^0.31.2"
+	},
+	"devDependencies": {
+		"@types/sharp": "^0.31.0",
+		"tsup": "^6.7.0",
+		"typescript": "^5.0.2",
+		"vite": "*"
+	},
+	"peerDependencies": {
+		"vite": "*"
+	},
+	"peerDependenciesMeta": {
+		"vite": {
+			"optional": true
+		}
+	}
+}
