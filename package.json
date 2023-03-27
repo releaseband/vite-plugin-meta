@@ -1,7 +1,8 @@
 {
-	"name": "vite-plugin-meta",
-	"version": "1.0.0",
+	"name": "@releaseband/vite-plugin-meta",
+	"version": "0.0.1",
 	"description": "",
+	"license": "MIT",
 	"type": "module",
 	"main": "dist/index.js",
 	"module": "dist/index.mjs",
@@ -12,15 +13,22 @@
 			"default": "./dist/index.js"
 		}
 	},
-	"scripts": {
-		"clean": "rm -r dist",
-		"bundle": "tsup-node src/index.ts --sourcemap --dts --format cjs,esm",
-		"dev": "pnpm bundle --watch",
-		"build": "pnpm clean && pnpm bundle"
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/releaseband/vite-plugin-meta.git"
 	},
-	"keywords": [],
-	"author": "",
-	"license": "ISC",
+	"publishConfig": {
+		"registry": "https://npm.pkg.github.com"
+	},
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "tsup-node src/index.ts --sourcemap --dts --format cjs,esm",
+		"dev": "pnpm bundle --watch",
+		"version": "changeset version && pnpm install --lockfile-only",
+		"publish": "pnpm run build && changeset publish"
+	},
 	"dependencies": {
 		"ffmpeg-static": "^5.1.0",
 		"get-audio-duration": "^3.1.1",
@@ -31,7 +39,9 @@
 		"@types/sharp": "^0.31.0",
 		"tsup": "^6.7.0",
 		"typescript": "^5.0.2",
-		"vite": "*"
+		"vite": "*",
+		"@changesets/changelog-github": "^0.4.4",
+		"@changesets/cli": "^2.22.0"
 	},
 	"peerDependencies": {
 		"vite": "*"
@@ -40,5 +50,10 @@
 		"vite": {
 			"optional": true
 		}
+	},
+	"packageManager": "pnpm@7.17.0",
+	"engines": {
+		"node": ">=16.0.0",
+		"pnpm": ">=7.0.0"
 	}
 }
