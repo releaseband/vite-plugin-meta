@@ -26,6 +26,7 @@
 	"scripts": {
 		"build": "tsup-node src/index.ts --sourcemap --dts --format cjs,esm",
 		"dev": "pnpm bundle --watch",
+		"changeset": "changeset",
 		"version": "changeset version && pnpm install --lockfile-only",
 		"publish": "pnpm run build && changeset publish"
 	},
@@ -41,7 +42,10 @@
 		"typescript": "^5.0.2",
 		"vite": "*",
 		"@changesets/changelog-github": "^0.4.4",
-		"@changesets/cli": "^2.22.0"
+		"@changesets/cli": "^2.22.0",
+		"@commitlint/cli": "^16.2.4",
+		"@commitlint/cz-commitlint": "^16.2.4",
+		"@releaseband/commitlint-config": "^1.0.4"
 	},
 	"peerDependencies": {
 		"vite": "*"
