@@ -1,5 +1,11 @@
 # @releaseband/vite-plugin-meta
 
+## 0.0.5
+
+### Patch Changes
+
+- [#10](https://github.com/releaseband/vite-plugin-meta/pull/10) [`36e8d20`](https://github.com/releaseband/vite-plugin-meta/commit/36e8d2020fef449ade78e9f7a5f0c9744b72e244) Thanks [@ksv90](https://github.com/ksv90)! - common js module added
+
 ## 0.0.4
 
 ### Patch Changes
