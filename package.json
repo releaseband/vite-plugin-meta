@@ -21,7 +21,8 @@
 		"registry": "https://npm.pkg.github.com"
 	},
 	"files": [
-		"dist"
+		"dist",
+		"README.md"
 	],
 	"scripts": {
 		"build": "tsup-node src/index.ts --sourcemap --dts --format cjs,esm",
