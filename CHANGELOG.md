@@ -1,5 +1,11 @@
 # @releaseband/vite-plugin-meta
 
+## 0.0.4
+
+### Patch Changes
+
+- [#8](https://github.com/releaseband/vite-plugin-meta/pull/8) [`760ee75`](https://github.com/releaseband/vite-plugin-meta/commit/760ee75e8d63bb4cf4156715a3e060e36efac0d8) Thanks [@ksv90](https://github.com/ksv90)! - vite version fixed
+
 ## 0.0.3
 
 ### Patch Changes
