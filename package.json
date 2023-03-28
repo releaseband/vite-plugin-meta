@@ -5,9 +5,9 @@
 	"license": "MIT",
 	"type": "module",
 	"main": "dist/index.js",
-	"module": "dist/index.mjs",
+	"module": "dist/index.js",
 	"exports": {
-		"import": "./dist/index.mjs",
+		"import": "./dist/index.js",
 		"require": {
 			"types": "./dist/index.d.ts",
 			"default": "./dist/index.js"
