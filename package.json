@@ -4,13 +4,13 @@
 	"description": "",
 	"license": "MIT",
 	"type": "module",
-	"main": "dist/index.js",
+	"main": "dist/index.cjs",
 	"module": "dist/index.js",
 	"exports": {
 		"import": "./dist/index.js",
 		"require": {
 			"types": "./dist/index.d.ts",
-			"default": "./dist/index.js"
+			"default": "./dist/index.cjs"
 		}
 	},
 	"repository": {
@@ -26,7 +26,7 @@
 	],
 	"scripts": {
 		"build": "tsup-node src/index.ts --sourcemap --dts --format cjs,esm",
-		"dev": "pnpm bundle --watch",
+		"dev": "pnpm build --watch",
 		"changeset": "changeset",
 		"version": "changeset version && pnpm install --lockfile-only",
 		"publish": "pnpm run build && changeset publish"
@@ -41,7 +41,7 @@
 		"@types/sharp": "^0.31.0",
 		"tsup": "^6.7.0",
 		"typescript": "^5.0.2",
-		"vite": "*",
+		"vite": "^4.0.4",
 		"@changesets/changelog-github": "^0.4.4",
 		"@changesets/cli": "^2.22.0",
 		"@commitlint/cli": "^16.2.4",
@@ -49,7 +49,7 @@
 		"@releaseband/commitlint-config": "^1.0.4"
 	},
 	"peerDependencies": {
-		"vite": "*"
+		"vite": "^4.0.4"
 	},
 	"peerDependenciesMeta": {
 		"vite": {
