@@ -1,5 +1,11 @@
 # @releaseband/vite-plugin-meta
 
+## 0.0.6
+
+### Patch Changes
+
+- [#12](https://github.com/releaseband/vite-plugin-meta/pull/12) [`fb164f7`](https://github.com/releaseband/vite-plugin-meta/commit/fb164f71a2e85cd75c034a386d7fcea5d7a27273) Thanks [@ksv90](https://github.com/ksv90)! - sharp cache disabled
+
 ## 0.0.5
 
 ### Patch Changes
