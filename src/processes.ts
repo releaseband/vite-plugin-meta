@@ -49,12 +49,12 @@ export function ffmpegCommand(input: string, format: string, settings: ReadonlyA
 	return [ffmpeg, '-i', input, ...options, ...settings, output].join(' ');
 }
 
-export function createTexturesConfig(): TexturesConfig {
-	return { formats: [Ext.avif, Ext.png, Ext.webp] };
+export function createTexturesConfig(prod: boolean): TexturesConfig {
+	return { formats: prod ? [Ext.avif, Ext.png, Ext.webp] : [Ext.png] };
 }
 
-export function createSoundsConfig(trackDuration: TrackDuration): SoundsConfig {
-	return { formats: [Ext.m4a, Ext.mp3, Ext.ogg], trackDuration };
+export function createSoundsConfig(prod: boolean, trackDuration: TrackDuration): SoundsConfig {
+	return { formats: prod ? [Ext.m4a, Ext.mp3, Ext.ogg] : [Ext.wav], trackDuration };
 }
 
 export async function execCommand(command: string): Promise<void> {
