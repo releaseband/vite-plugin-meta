@@ -33,21 +33,21 @@
 		"publish": "pnpm run build && changeset publish"
 	},
 	"dependencies": {
+		"@ffprobe-installer/ffprobe": "^2.0.0",
 		"ffmpeg-static": "^5.1.0",
-		"get-audio-duration": "^3.1.1",
 		"picocolors": "^1.0.0",
 		"sharp": "^0.31.2"
 	},
 	"devDependencies": {
-		"@types/sharp": "^0.31.0",
-		"tsup": "^6.7.0",
-		"typescript": "^5.0.2",
-		"vite": "^4.0.4",
 		"@changesets/changelog-github": "^0.4.4",
 		"@changesets/cli": "^2.22.0",
 		"@commitlint/cli": "^16.2.4",
 		"@commitlint/cz-commitlint": "^16.2.4",
-		"@releaseband/commitlint-config": "^1.0.4"
+		"@releaseband/commitlint-config": "^1.0.4",
+		"@types/sharp": "^0.31.0",
+		"tsup": "^6.7.0",
+		"typescript": "^5.0.2",
+		"vite": "^4.0.4"
 	},
 	"peerDependencies": {
 		"vite": "^4.0.4"
