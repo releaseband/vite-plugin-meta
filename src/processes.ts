@@ -4,6 +4,7 @@ import { exec } from 'node:child_process';
 import { createReadStream, createWriteStream, readdirSync, statSync } from 'node:fs';
 import { rename, stat, unlink, writeFile } from 'node:fs/promises';
 import { extname, join, sep } from 'node:path';
+import { getAudioDurationInSeconds } from 'get-audio-duration';
 import sharp from 'sharp';
 
 import { MetaConfig, SoundsConfig, TexturesConfig, TrackDuration } from './types';
@@ -90,6 +91,15 @@ export async function makeTempFile(filePath: string): Promise<string> {
 		return tempName;
 	} catch (err) {
 		throw new Error(`makeTempFile ${filePath} failed: \n${String(err)}`);
+	}
+}
+
+export async function getAudioDuration(soundPath: string): Promise<number> {
+	try {
+		const stream = createReadStream(soundPath);
+		return await getAudioDurationInSeconds(stream);
+	} catch (err) {
+		throw new Error(`File "${soundPath}" duration not received` + err);
 	}
 }
 

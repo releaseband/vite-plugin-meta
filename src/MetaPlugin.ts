@@ -1,11 +1,10 @@
-/* eslint-disable import/no-extraneous-dependencies */
-import { getAudioDurationInSeconds } from 'get-audio-duration';
 import path from 'node:path';
 
 import {
 	createSoundsConfig,
 	createTexturesConfig,
 	Ext,
+	getAudioDuration,
 	getBasePath,
 	getFilesPaths,
 	imageConvert,
@@ -53,7 +52,7 @@ export default class MetaPlugin {
 	public async audioDurationProcess(): Promise<void> {
 		const jobs = this.soundsFiles.map(async (soundPath) => {
 			try {
-				const audioDuration = await getAudioDurationInSeconds(soundPath);
+				const audioDuration = await getAudioDuration(soundPath);
 				this.trackDuration[getBasePath(soundPath)] = audioDuration;
 			} catch (err) {
 				throw new Error(`audioDurationProcess ${soundPath} failed: \n${String(err)}`);
