@@ -1,10 +1,10 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import ffmpeg from 'ffmpeg-static';
-import { exec } from 'node:child_process';
+import { exec, spawn } from 'node:child_process';
 import { createReadStream, createWriteStream, readdirSync, statSync } from 'node:fs';
 import { rename, stat, unlink, writeFile } from 'node:fs/promises';
 import { extname, join, sep } from 'node:path';
-import { getAudioDurationInSeconds } from 'get-audio-duration';
+import ffprobe from '@ffprobe-installer/ffprobe';
 import sharp from 'sharp';
 
 import { MetaConfig, SoundsConfig, TexturesConfig, TrackDuration } from './types';
@@ -94,13 +94,17 @@ export async function makeTempFile(filePath: string): Promise<string> {
 	}
 }
 
-export async function getAudioDuration(soundPath: string): Promise<number> {
-	try {
-		const stream = createReadStream(soundPath);
-		return await getAudioDurationInSeconds(stream);
-	} catch (err) {
-		throw new Error(`File "${soundPath}" duration not received` + err);
-	}
+export async function getAudioDuration(soundPath: string, params: ReadonlyArray<string>): Promise<number> {
+	return new Promise((resolve, reject) => {
+		const { stdout } = spawn(ffprobe.path, params.concat(soundPath));
+		stdout.on('error', reject).on('readable', () => {
+			const data = String(stdout.read());
+			const matched = data.match(/duration="?(\d*\.\d*)"?/);
+			const duration = matched?.at(0)?.split('=').at(-1);
+			if (!duration) return reject('Duration not found');
+			resolve(parseFloat(duration));
+		});
+	});
 }
 
 export async function imageConvert(imagePath: string): Promise<void> {
