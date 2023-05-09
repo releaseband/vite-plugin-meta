@@ -1,5 +1,11 @@
 # @releaseband/vite-plugin-meta
 
+## 0.0.8
+
+### Patch Changes
+
+- [#16](https://github.com/releaseband/vite-plugin-meta/pull/16) [`6fae57c`](https://github.com/releaseband/vite-plugin-meta/commit/6fae57c7458700c26fde52ec4d8fd04d20547b4d) Thanks [@ksv90](https://github.com/ksv90)! - get audio duration with readstream
+
 ## 0.0.7
 
 ### Patch Changes
