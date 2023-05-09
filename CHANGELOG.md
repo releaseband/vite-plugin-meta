@@ -1,5 +1,11 @@
 # @releaseband/vite-plugin-meta
 
+## 0.0.7
+
+### Patch Changes
+
+- [#14](https://github.com/releaseband/vite-plugin-meta/pull/14) [`e8197f4`](https://github.com/releaseband/vite-plugin-meta/commit/e8197f4d24cd88ff25b18e3686e4360449012b55) Thanks [@ksv90](https://github.com/ksv90)! - prod flag changed
+
 ## 0.0.6
 
 ### Patch Changes
