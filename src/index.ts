@@ -1,7 +1,6 @@
 import path from 'node:path';
 import process from 'node:process';
 import { Logger, PluginOption } from 'vite';
-import { chmod } from 'node:fs/promises';
 
 import MetaPlugin from './MetaPlugin';
 import { buildError, errorStack, greenText, redText } from './utils';
@@ -44,7 +43,6 @@ const metaPlugin = ({ isProd = true, name = 'meta.json' }: MetaPluginConfig = {}
 			if (config.command === 'build') return;
 			try {
 				plugin.selectFiles(config.publicDir);
-				await chmod(process.cwd(), '777');
 				await plugin.audioDurationProcess();
 				await plugin.writeConfig(false, config.publicDir);
 			} catch (err) {
@@ -66,7 +64,6 @@ const metaPlugin = ({ isProd = true, name = 'meta.json' }: MetaPluginConfig = {}
 			logger.info(`\n${greenText('Metaprocesses started')}`);
 			try {
 				plugin.selectFiles(outDir);
-				await chmod(process.cwd(), '777');
 				const jobs = [plugin.audioDurationProcess()];
 				if (isProd) jobs.push(plugin.imagesConversionProcess(), plugin.soundsConversionProcess());
 				await Promise.all(jobs);
