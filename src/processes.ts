@@ -98,10 +98,11 @@ export async function getAudioDuration(soundPath: string, params: ReadonlyArray<
 	return new Promise((resolve, reject) => {
 		const { stdout } = spawn(ffprobe.path, params.concat(soundPath));
 		stdout.on('error', reject).on('readable', () => {
-			const data = String(stdout.read());
-			const matched = data.match(/duration="?(\d*\.\d*)"?/);
+			const data = stdout.read();
+			if (!data) return;
+			const matched = String(data).match(/duration="?(\d*\.\d*)"?/);
 			const duration = matched?.at(0)?.split('=').at(-1);
-			if (!duration) return reject('Duration not found');
+			if (!duration) return;
 			resolve(parseFloat(duration));
 		});
 	});
