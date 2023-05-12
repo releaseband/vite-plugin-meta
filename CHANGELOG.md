@@ -1,5 +1,11 @@
 # @releaseband/vite-plugin-meta
 
+## 0.0.10
+
+### Patch Changes
+
+- [#21](https://github.com/releaseband/vite-plugin-meta/pull/21) [`50baae6`](https://github.com/releaseband/vite-plugin-meta/commit/50baae62d2498771a1baba39fb346f43e72bcf23) Thanks [@ksv90](https://github.com/ksv90)! - chunk stream changed
+
 ## 0.0.9
 
 ### Patch Changes
