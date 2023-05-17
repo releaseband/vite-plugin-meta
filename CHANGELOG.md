@@ -1,5 +1,11 @@
 # @releaseband/vite-plugin-meta
 
+## 0.0.11
+
+### Patch Changes
+
+- [#23](https://github.com/releaseband/vite-plugin-meta/pull/23) [`33a3334`](https://github.com/releaseband/vite-plugin-meta/commit/33a3334aac3cbd7718d237b18f1ae18a2cabd0c3) Thanks [@ksv90](https://github.com/ksv90)! - exec command removed
+
 ## 0.0.10
 
 ### Patch Changes
