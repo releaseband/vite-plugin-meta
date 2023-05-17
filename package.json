@@ -1,6 +1,6 @@
 {
 	"name": "@releaseband/vite-plugin-meta",
-	"version": "0.0.10",
+	"version": "0.0.11",
 	"description": "",
 	"license": "MIT",
 	"type": "module",
