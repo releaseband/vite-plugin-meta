@@ -1,6 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import ffmpeg from 'ffmpeg-static';
-import { exec, spawn } from 'node:child_process';
+import { spawn } from 'node:child_process';
 import { createReadStream, createWriteStream, readdirSync, statSync } from 'node:fs';
 import { rename, stat, unlink, writeFile } from 'node:fs/promises';
 import { extname, join, sep } from 'node:path';
@@ -43,11 +43,10 @@ export function getFilesPaths(inputPath: string): ReadonlyArray<string> {
 	return filesPath;
 }
 
-export function ffmpegCommand(input: string, format: string, settings: ReadonlyArray<string>): string {
-	if (!ffmpeg) throw new Error('ffmpeg not found');
+export function ffmpegCommand(input: string, format: string, settings: ReadonlyArray<string>): ReadonlyArray<string> {
 	const output = input.replace(extname(input), format);
 	const options = ['-vn', '-y', '-ar', '44100', '-ac', '2'];
-	return [ffmpeg, '-i', input, ...options, ...settings, output].join(' ');
+	return ['-i', input, ...options, ...settings, output];
 }
 
 export function createTexturesConfig(prod: boolean): TexturesConfig {
@@ -58,12 +57,11 @@ export function createSoundsConfig(prod: boolean, trackDuration: TrackDuration):
 	return { formats: prod ? [Ext.m4a, Ext.mp3, Ext.ogg] : [Ext.wav], trackDuration };
 }
 
-export async function execCommand(command: string): Promise<void> {
+export async function execCommand(params: ReadonlyArray<string>): Promise<void> {
 	await new Promise<void>((resolve, reject) => {
-		exec(command, (err) => {
-			if (err) reject(err);
-			else resolve();
-		});
+		if (!ffmpeg) throw new Error('ffmpeg not found');
+		const { stdout } = spawn(ffmpeg, params);
+		stdout.on('error', reject).on('end', () => resolve());
 	});
 }
 
@@ -97,14 +95,22 @@ export async function makeTempFile(filePath: string): Promise<string> {
 export async function getAudioDuration(soundPath: string, params: ReadonlyArray<string>): Promise<number> {
 	return new Promise((resolve, reject) => {
 		const { stdout } = spawn(ffprobe.path, params.concat(soundPath));
-		stdout.on('error', reject).on('readable', () => {
-			const data = stdout.read();
-			if (!data) return;
-			const matched = String(data).match(/duration="?(\d*\.\d*)"?/);
-			const duration = matched?.at(0)?.split('=').at(-1);
-			if (!duration) return;
-			resolve(parseFloat(duration));
-		});
+
+		let soundDuration: number;
+		stdout
+			.on('error', reject)
+			.on('readable', () => {
+				const data = stdout.read();
+				if (!data) return;
+				const matched = String(data).match(/duration="?(\d*\.\d*)"?/);
+				const duration = matched?.at(0)?.split('=').at(-1);
+				if (!duration) return;
+				soundDuration = parseFloat(duration);
+			})
+			.on('end', () => {
+				if (!soundDuration) throw new Error(`Sound ${soundPath} duration not found`);
+				resolve(soundDuration);
+			});
 	});
 }
 
