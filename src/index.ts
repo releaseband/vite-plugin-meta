@@ -21,9 +21,11 @@ function createError(err: unknown): string {
 type MetaPluginConfig = {
 	readonly isProd?: boolean;
 	readonly name?: string;
+	readonly isAudioDuration?: boolean;
 };
 
-const metaPlugin = ({ isProd = true, name = 'meta.json' }: MetaPluginConfig = {}): PluginOption => {
+const metaPlugin = (pluginConfig: MetaPluginConfig = {}): PluginOption => {
+	const { isProd = true, name = 'meta.json', isAudioDuration = true } = pluginConfig;
 	const version = process.env['GAME_VERSION'] || '0.0.0';
 	const plugin = new MetaPlugin(name, version);
 
@@ -43,7 +45,7 @@ const metaPlugin = ({ isProd = true, name = 'meta.json' }: MetaPluginConfig = {}
 			if (config.command === 'build') return;
 			try {
 				plugin.selectFiles(config.publicDir);
-				await plugin.audioDurationProcess();
+				if (isAudioDuration) await plugin.audioDurationProcess();
 				await plugin.writeConfig(false, config.publicDir);
 			} catch (err) {
 				config.logger.error(createError(err));
@@ -64,9 +66,11 @@ const metaPlugin = ({ isProd = true, name = 'meta.json' }: MetaPluginConfig = {}
 			logger.info(`\n${greenText('Metaprocesses started')}`);
 			try {
 				plugin.selectFiles(outDir);
-				const jobs = [plugin.audioDurationProcess()];
-				if (isProd) jobs.push(plugin.imagesConversionProcess(), plugin.soundsConversionProcess());
-				await Promise.all(jobs);
+				if (isAudioDuration) await plugin.audioDurationProcess();
+				if (isProd) {
+					await plugin.imagesConversionProcess();
+					await plugin.soundsConversionProcess();
+				}
 				await plugin.writeConfig(isProd, outDir);
 				logger.info(`${greenText('✓')} metaprocesses completed\n`);
 			} catch (err) {
