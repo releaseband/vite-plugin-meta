@@ -4,7 +4,8 @@ import { spawn } from 'node:child_process';
 import { createReadStream, createWriteStream, readdirSync, statSync } from 'node:fs';
 import { rename, stat, unlink, writeFile } from 'node:fs/promises';
 import { extname, join, sep } from 'node:path';
-import ffprobe from '@ffprobe-installer/ffprobe';
+import ffprobeStatic from 'ffprobe-static';
+import ffprobe from 'ffprobe';
 import sharp from 'sharp';
 
 import { MetaConfig, SoundsConfig, TexturesConfig, TrackDuration } from './types';
@@ -92,26 +93,17 @@ export async function makeTempFile(filePath: string): Promise<string> {
 	}
 }
 
-export async function getAudioDuration(soundPath: string, params: ReadonlyArray<string>): Promise<number> {
-	return new Promise((resolve, reject) => {
-		const { stdout } = spawn(ffprobe.path, params.concat(soundPath));
-
-		let soundDuration: number;
-		stdout
-			.on('error', reject)
-			.on('readable', () => {
-				const data = stdout.read();
-				if (!data) return;
-				const matched = String(data).match(/duration="?(\d*\.\d*)"?/);
-				const duration = matched?.at(0)?.split('=').at(-1);
-				if (!duration) return;
-				soundDuration = parseFloat(duration);
-			})
-			.on('end', () => {
-				if (!soundDuration) throw new Error(`Sound ${soundPath} duration not found`);
-				resolve(soundDuration);
-			});
-	});
+export async function getAudioDuration(soundPath: string): Promise<number> {
+	try {
+		const { streams } = await ffprobe(soundPath, { path: ffprobeStatic.path });
+		const { duration } = streams.find(({ duration }) => !!duration) ?? {};
+		if (!duration) throw new Error(`Sound ${soundPath} duration not found`);
+		return parseFloat(duration);
+	} catch (err) {
+		if (!err) throw new Error(`Sound ${soundPath} error`);
+		if (err instanceof Error) throw err;
+		throw new Error(String(err));
+	}
 }
 
 export async function imageConvert(imagePath: string): Promise<void> {

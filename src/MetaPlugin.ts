@@ -22,7 +22,6 @@ const formats = {
 	'.ogg': ['-acodec', 'libvorbis', '-f', 'ogg', '-aq', '2'],
 	'.m4a': ['-ab', '96k', '-strict', '-2'],
 };
-const ffprobeParams = ['-v', 'error', '-select_streams', 'a:0', '-show_format', '-show_streams'];
 const imagesExt: ReadonlyArray<string> = [Ext.png, Ext.jpg, Ext.jpeg];
 const soundsExt: ReadonlyArray<string> = [Ext.wav];
 
@@ -53,7 +52,7 @@ export default class MetaPlugin {
 	public async audioDurationProcess(): Promise<void> {
 		const jobs = this.soundsFiles.map(async (soundPath) => {
 			try {
-				const audioDuration = await getAudioDuration(soundPath, ffprobeParams);
+				const audioDuration = await getAudioDuration(soundPath);
 				this.trackDuration[getBasePath(soundPath)] = audioDuration;
 			} catch (err) {
 				throw new Error(`audioDurationProcess ${soundPath} failed: \n${String(err)}`);
