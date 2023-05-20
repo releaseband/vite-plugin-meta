@@ -1,5 +1,11 @@
 # @releaseband/vite-plugin-meta
 
+## 0.0.12
+
+### Patch Changes
+
+- [#25](https://github.com/releaseband/vite-plugin-meta/pull/25) [`8852f8d`](https://github.com/releaseband/vite-plugin-meta/commit/8852f8d583965849d052a069ee18359ec7c28124) Thanks [@ksv90](https://github.com/ksv90)! - ffprobe changed
+
 ## 0.0.11
 
 ### Patch Changes
