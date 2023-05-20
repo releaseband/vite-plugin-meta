@@ -5,7 +5,6 @@ specifiers:
   '@changesets/cli': ^2.22.0
   '@commitlint/cli': ^16.2.4
   '@commitlint/cz-commitlint': ^16.2.4
-  '@ffprobe-installer/ffprobe': ^2.0.0
   '@releaseband/commitlint-config': ^1.0.4
   '@types/sharp': ^0.31.0
   ffmpeg-static: ^5.1.0
@@ -18,7 +17,6 @@ specifiers:
   vite: ^4.0.4
 
 dependencies:
-  '@ffprobe-installer/ffprobe': 2.0.0
   ffmpeg-static: 5.1.0
   ffprobe: 1.1.2
   ffprobe-static: 3.1.0
@@ -659,84 +657,6 @@ packages:
     os: [win32]
     requiresBuild: true
     dev: true
-    optional: true
-
-  /@ffprobe-installer/darwin-arm64/5.0.1:
-    resolution: {integrity: sha512-vwNCNjokH8hfkbl6m95zICHwkSzhEvDC3GVBcUp5HX8+4wsX10SP3B+bGur7XUzTIZ4cQpgJmEIAx6TUwRepMg==}
-    cpu: [arm64]
-    os: [darwin]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  /@ffprobe-installer/darwin-x64/5.1.0:
-    resolution: {integrity: sha512-J+YGscZMpQclFg31O4cfVRGmDpkVsQ2fZujoUdMAAYcP0NtqpC49Hs3SWJpBdsGB4VeqOt5TTm1vSZQzs1NkhA==}
-    cpu: [x64]
-    os: [darwin]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  /@ffprobe-installer/ffprobe/2.0.0:
-    resolution: {integrity: sha512-BT5BHZZSOyFFbHd+3zFdEQCNfBORYwNtqre7l1dMmqvDha60G/7rEDCSeCX4sNLuCcNR4IxvGHicfRQie7SNUA==}
-    engines: {node: '>=14.21.2'}
-    optionalDependencies:
-      '@ffprobe-installer/darwin-arm64': 5.0.1
-      '@ffprobe-installer/darwin-x64': 5.1.0
-      '@ffprobe-installer/linux-arm': 5.1.0
-      '@ffprobe-installer/linux-arm64': 5.1.0
-      '@ffprobe-installer/linux-ia32': 5.1.0
-      '@ffprobe-installer/linux-x64': 5.1.0
-      '@ffprobe-installer/win32-ia32': 5.1.0
-      '@ffprobe-installer/win32-x64': 5.1.0
-    dev: false
-
-  /@ffprobe-installer/linux-arm/5.1.0:
-    resolution: {integrity: sha512-y34AEive/M5/++RcuRJZciICYYRkmTh5gK6th7raydgfQhIYy/8AXAIGKqD5Hn855i6o/RpEIPjk7DWpEuwrdA==}
-    cpu: [arm]
-    os: [linux]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  /@ffprobe-installer/linux-arm64/5.1.0:
-    resolution: {integrity: sha512-u5b3r3/39eZmEV0X4OKUfp6gO3lOyVIpRO4WU+5Eb6omWYy+k0OkVbRffK4qJF1Uz8irwzyiDsmUZ6vE13/abQ==}
-    cpu: [arm64]
-    os: [linux]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  /@ffprobe-installer/linux-ia32/5.1.0:
-    resolution: {integrity: sha512-Uqk4sYYQxz0KQmEQ2xxbVu/KiDX7Pw6wRDpCYv0sW49GI3wpX2Umqi/Kmtr0tpCvxctVoCdf/U71EAxH2Lztdg==}
-    cpu: [ia32]
-    os: [linux]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  /@ffprobe-installer/linux-x64/5.1.0:
-    resolution: {integrity: sha512-r7cGOjNb8AMnKAEvz5f8N/WsWsre02LhAfDKZX0m5J0bsrYgs2HUlnnQiwjRCH9CYXYerjYqq592o/GXvxDS+Q==}
-    cpu: [x64]
-    os: [linux]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  /@ffprobe-installer/win32-ia32/5.1.0:
-    resolution: {integrity: sha512-5O3vOoNRxmut0/Nu9vSazTdSHasrr+zPT2B3Hm7kjmO3QVFcIfVImS6ReQnZeSy8JPJOqXts5kX5x/3KOX54XQ==}
-    cpu: [ia32]
-    os: [win32]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  /@ffprobe-installer/win32-x64/5.1.0:
-    resolution: {integrity: sha512-jMGYeAgkrdn4e2vvYt/qakgHRE3CPju4bn5TmdPfoAm1BlX1mY9cyMd8gf5vSzI8gH8Zq5WQAyAkmekX/8TSTg==}
-    cpu: [x64]
-    os: [win32]
-    requiresBuild: true
-    dev: false
     optional: true
 
   /@jridgewell/resolve-uri/3.1.0:
