@@ -19,3 +19,9 @@ export type MetaConfig = {
 	readonly textures: TexturesConfig;
 	readonly sounds: SoundsConfig;
 };
+
+export type MetaPluginOption = {
+	readonly metaConfigName: string;
+	readonly hashConfigName: string;
+	readonly version: string;
+};
