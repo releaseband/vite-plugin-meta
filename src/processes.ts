@@ -2,7 +2,7 @@
 import ffmpeg from 'ffmpeg-static';
 import { spawn } from 'node:child_process';
 import { createReadStream, createWriteStream, readdirSync, statSync, existsSync, mkdirSync } from 'node:fs';
-import { rename, unlink, writeFile, readFile } from 'node:fs/promises';
+import { rename, unlink, writeFile, readFile, copyFile } from 'node:fs/promises';
 import { extname, join, sep, dirname } from 'node:path';
 import ffprobeStatic from 'ffprobe-static';
 import ffprobe from 'ffprobe';
@@ -116,6 +116,14 @@ export async function getAudioDuration(soundPath: string): Promise<number> {
 		if (!err) throw new Error(`Sound ${soundPath} error`);
 		if (err instanceof Error) throw err;
 		throw new Error(String(err));
+	}
+}
+
+export async function transferFile(fromFilePath: string, toFilePath: string): Promise<void> {
+	try {
+		await copyFile(fromFilePath, toFilePath);
+	} catch (err) {
+		throw new Error(`${transferFile.name} error \n` + String(err));
 	}
 }
 

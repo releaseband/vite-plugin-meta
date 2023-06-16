@@ -13,6 +13,7 @@ import {
 	makeHash,
 	readConfig,
 	removeFile,
+	transferFile,
 	writeConfig,
 } from './processes';
 import { MetaPluginOption, Names } from './types';
@@ -60,11 +61,15 @@ export default class MetaPlugin {
 		this.publicDir = publicDir;
 		const imagesExt: ReadonlyArray<string> = [Ext.png, Ext.jpg, Ext.jpeg];
 		const soundsExt: ReadonlyArray<string> = [Ext.wav];
-		getFilesPaths(publicDir).forEach((file) => {
-			const extname = path.extname(file).toLowerCase();
-			if (imagesExt.includes(extname)) this.imagesFiles.push(file);
-			else if (soundsExt.includes(extname)) this.soundsFiles.push(file);
-		});
+		[this.imagesFiles, this.soundsFiles] = getFilesPaths(publicDir).reduce(
+			([imagesFiles, soundsFiles], file) => {
+				const extname = path.extname(file).toLowerCase();
+				if (imagesExt.includes(extname)) return [[...imagesFiles, file], soundsFiles];
+				else if (soundsExt.includes(extname)) return [imagesFiles, [...soundsFiles, file]];
+				return [imagesFiles, soundsFiles];
+			},
+			[new Array<string>(), new Array<string>()]
+		);
 	}
 
 	public async loadHashs(): Promise<void> {
@@ -159,12 +164,34 @@ export default class MetaPlugin {
 		await Promise.all(jobs);
 	}
 
-	public async convertProcess(): Promise<void> {
+	public async convertProcess(publicDir: string): Promise<void> {
+		this.selectFiles(publicDir);
 		await this.loadHashs();
 		await this.checkFiles();
 		await this.imagesConversionProcess();
 		await this.soundsConversionProcess();
 		await this.writeHashConfig();
+	}
+
+	public async transferProcess(): Promise<void> {
+		const imagesJobs = this.imagesFiles.map(async (filePath) => {
+			const ext = path.extname(filePath);
+			const newPath = replaceRoot(filePath, this.option.storageDir);
+			await removeFile(filePath);
+			await transferFile(newPath.replace(ext, Ext.png), filePath.replace(ext, Ext.png));
+			await transferFile(newPath.replace(ext, Ext.avif), filePath.replace(ext, Ext.avif));
+			await transferFile(newPath.replace(ext, Ext.webp), filePath.replace(ext, Ext.webp));
+		});
+		await Promise.all(imagesJobs);
+		const soundJobs = this.soundsFiles.map(async (filePath) => {
+			const ext = path.extname(filePath);
+			const newPath = replaceRoot(filePath, this.option.storageDir);
+			await removeFile(filePath);
+			await transferFile(newPath.replace(ext, Ext.m4a), filePath.replace(ext, Ext.m4a));
+			await transferFile(newPath.replace(ext, Ext.ogg), filePath.replace(ext, Ext.ogg));
+			await transferFile(newPath.replace(ext, Ext.mp3), filePath.replace(ext, Ext.mp3));
+		});
+		await Promise.all(soundJobs);
 	}
 
 	public async removeConfig(): Promise<void> {

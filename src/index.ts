@@ -32,7 +32,7 @@ const metaPlugin = (pluginConfig: MetaPluginConfig = {}): PluginOption => {
 		version: process.env['GAME_VERSION'] || '0.0.0',
 		metaConfigName: pluginConfig.metaConfigName,
 		hashConfigName: pluginConfig.hashConfigName,
-		storageDir: pluginConfig.storageDir ?? 'file-storage',
+		storageDir: pluginConfig.storageDir,
 	});
 
 	let config: PluginConfig;
@@ -71,10 +71,11 @@ const metaPlugin = (pluginConfig: MetaPluginConfig = {}): PluginOption => {
 			const { logger, outDir } = config;
 			logger.info(`\n${greenText('Metaprocesses started')}`);
 			try {
+				if (convert) await plugin.convertProcess(config.publicDir);
 				plugin.selectFiles(outDir);
 				if (audioDuration) await plugin.audioDurationProcess();
-				if (convert) await plugin.convertProcess();
 				await plugin.writeConfig(convert, outDir);
+				if (convert) await plugin.transferProcess();
 				logger.info(`${greenText('✓')} metaprocesses completed\n`);
 			} catch (err) {
 				logger.error(createError(err));
