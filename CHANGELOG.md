@@ -1,5 +1,11 @@
 # @releaseband/vite-plugin-meta
 
+## 0.1.0
+
+### Minor Changes
+
+- [#30](https://github.com/releaseband/vite-plugin-meta/pull/30) [`afbea9f`](https://github.com/releaseband/vite-plugin-meta/commit/afbea9fa4a9a819b067ff2c489d2ff8489f13044) Thanks [@ksv90](https://github.com/ksv90)! - file storage added
+
 ## 0.0.12
 
 ### Patch Changes
