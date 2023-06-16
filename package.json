@@ -26,7 +26,7 @@
 		"README.md"
 	],
 	"scripts": {
-		"build": "tsup-node src/index.ts src/updateHash.ts --sourcemap --dts --format cjs,esm",
+		"build": "tsup-node src/index.ts src/updateHash.ts --sourcemap --clean --dts --format cjs,esm",
 		"dev": "pnpm build --watch",
 		"changeset": "changeset",
 		"version": "changeset version && pnpm install --lockfile-only",

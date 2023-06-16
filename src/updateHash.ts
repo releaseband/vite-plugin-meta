@@ -19,8 +19,7 @@ const publicDir = getParameter(Flags.publicDir) ?? Names.publicDir;
 const hashConfigName = getParameter(Flags.configName) ?? Names.hashConfigName;
 
 const plugin = new MetaPlugin({ storageDir, hashConfigName });
-plugin.selectFiles(publicDir);
-plugin.convertProcess().catch((err) => {
+plugin.convertProcess(publicDir).catch((err) => {
 	console.error(String(err));
 	process.exit(1);
 });
