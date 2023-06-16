@@ -23,14 +23,16 @@ type MetaPluginConfig = {
 	readonly audioDuration?: boolean;
 	readonly metaConfigName?: string;
 	readonly hashConfigName?: string;
+	readonly storageDir?: string;
 };
 
 const metaPlugin = (pluginConfig: MetaPluginConfig = {}): PluginOption => {
 	const { convert = true, audioDuration = true } = pluginConfig;
 	const plugin = new MetaPlugin({
 		version: process.env['GAME_VERSION'] || '0.0.0',
-		metaConfigName: pluginConfig.metaConfigName ?? 'meta.json',
-		hashConfigName: pluginConfig.hashConfigName ?? 'files-hash.json',
+		metaConfigName: pluginConfig.metaConfigName,
+		hashConfigName: pluginConfig.hashConfigName,
+		storageDir: pluginConfig.storageDir ?? 'file-storage',
 	});
 
 	let config: PluginConfig;
@@ -71,11 +73,7 @@ const metaPlugin = (pluginConfig: MetaPluginConfig = {}): PluginOption => {
 			try {
 				plugin.selectFiles(outDir);
 				if (audioDuration) await plugin.audioDurationProcess();
-				if (convert) {
-					await plugin.loadHashs(config.publicDir);
-					await plugin.imagesConversionProcess();
-					await plugin.soundsConversionProcess();
-				}
+				if (convert) await plugin.convertProcess();
 				await plugin.writeConfig(convert, outDir);
 				logger.info(`${greenText('✓')} metaprocesses completed\n`);
 			} catch (err) {
