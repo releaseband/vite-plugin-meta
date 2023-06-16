@@ -61,11 +61,11 @@ export function createSoundsConfig(prod: boolean, trackDuration: TrackDuration):
 	return { formats: prod ? [Ext.m4a, Ext.mp3, Ext.ogg] : [Ext.wav], trackDuration };
 }
 
-export async function execCommand(params: ReadonlyArray<string>): Promise<void> {
-	await new Promise<void>((resolve, reject) => {
+export function execCommand(params: ReadonlyArray<string>): Promise<void> {
+	return new Promise((resolve, reject) => {
 		if (!ffmpeg) throw new Error('ffmpeg not found');
 		const { stdout } = spawn(ffmpeg, params);
-		stdout.on('error', reject).on('end', () => resolve());
+		stdout.on('error', reject).on('end', resolve);
 	});
 }
 
@@ -198,8 +198,7 @@ export async function makeHash(filePath: string): Promise<string> {
 	const hash = createHash('md5');
 	hash.setEncoding('hex');
 	return new Promise((resolve) => {
-		readStream.on('end', () => resolve(hash.end().read()));
-		readStream.pipe(hash);
+		readStream.on('end', () => resolve(hash.end().read())).pipe(hash);
 	});
 }
 
