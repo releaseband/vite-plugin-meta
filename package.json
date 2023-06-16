@@ -26,11 +26,14 @@
 		"README.md"
 	],
 	"scripts": {
-		"build": "tsup-node src/index.ts --sourcemap --dts --format cjs,esm",
+		"build": "tsup-node src/index.ts src/updateHash.ts --sourcemap --dts --format cjs,esm",
 		"dev": "pnpm build --watch",
 		"changeset": "changeset",
 		"version": "changeset version && pnpm install --lockfile-only",
 		"publish": "pnpm run build && changeset publish"
+	},
+	"bin": {
+		"ufs": "dist/updateHash.js"
 	},
 	"dependencies": {
 		"ffmpeg-static": "^5.1.0",

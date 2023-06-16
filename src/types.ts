@@ -1,3 +1,10 @@
+export const enum Names {
+	metaConfigName = 'meta.json',
+	hashConfigName = 'files-hash.json',
+	publicDir = 'public',
+	storageDir = 'storage',
+}
+
 export type TextureFormats = ReadonlyArray<string>;
 
 export type SoundFormats = ReadonlyArray<string>;
@@ -21,7 +28,8 @@ export type MetaConfig = {
 };
 
 export type MetaPluginOption = {
-	readonly metaConfigName: string;
-	readonly hashConfigName: string;
-	readonly version: string;
+	readonly version?: string;
+	readonly metaConfigName?: string;
+	readonly hashConfigName?: string;
+	readonly storageDir?: string;
 };

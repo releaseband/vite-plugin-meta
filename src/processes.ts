@@ -1,15 +1,16 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import ffmpeg from 'ffmpeg-static';
 import { spawn } from 'node:child_process';
-import { createReadStream, createWriteStream, readdirSync, statSync, existsSync } from 'node:fs';
-import { rename, stat, unlink, writeFile, readFile } from 'node:fs/promises';
-import { extname, join, sep } from 'node:path';
+import { createReadStream, createWriteStream, readdirSync, statSync, existsSync, mkdirSync } from 'node:fs';
+import { rename, unlink, writeFile, readFile } from 'node:fs/promises';
+import { extname, join, sep, dirname } from 'node:path';
 import ffprobeStatic from 'ffprobe-static';
 import ffprobe from 'ffprobe';
 import sharp from 'sharp';
 import { createHash } from 'node:crypto';
 
 import { SoundsConfig, TexturesConfig, TrackDuration } from './types';
+import { replaceRoot } from './helpers';
 
 sharp.cache(false);
 
@@ -25,6 +26,8 @@ export const enum Ext {
 	jpeg = '.jpeg',
 	wav = '.wav',
 }
+
+const soundOptions = ['-vn', '-y', '-ar', '44100', '-ac', '2'];
 
 export function getBasePath(fullPath: string): string {
 	return fullPath.split(sep).slice(1).join('/');
@@ -47,8 +50,7 @@ export function getFilesPaths(inputPath: string): ReadonlyArray<string> {
 
 export function ffmpegCommand(input: string, format: string, settings: ReadonlyArray<string>): ReadonlyArray<string> {
 	const output = input.replace(extname(input), format);
-	const options = ['-vn', '-y', '-ar', '44100', '-ac', '2'];
-	return ['-i', input, ...options, ...settings, output];
+	return ['-i', input, ...soundOptions, ...settings, output];
 }
 
 export function createTexturesConfig(prod: boolean): TexturesConfig {
@@ -69,8 +71,7 @@ export async function execCommand(params: ReadonlyArray<string>): Promise<void> 
 
 export async function removeFile(filePath: string) {
 	try {
-		const stats = await stat(filePath);
-		if (stats) await unlink(filePath);
+		if (existsSync(filePath)) await unlink(filePath);
 	} catch (err) {
 		throw new Error(`removeFile ${filePath} failed: \n${String(err)}`);
 	}
@@ -94,6 +95,7 @@ export async function writeConfig(dirPath: string, config: unknown): Promise<voi
 	}
 }
 
+// TODO: не используется
 export async function makeTempFile(filePath: string): Promise<string> {
 	try {
 		const tempName = filePath.replace(extname(filePath), Ext.temp);
@@ -117,6 +119,7 @@ export async function getAudioDuration(soundPath: string): Promise<number> {
 	}
 }
 
+// TODO: не используется
 export async function imageConvert(imagePath: string): Promise<void> {
 	return new Promise((resolve, reject) => {
 		const ext = extname(imagePath);
@@ -131,15 +134,51 @@ export async function imageConvert(imagePath: string): Promise<void> {
 	});
 }
 
+export async function convertImage(imagePath: string, storageDir: string): Promise<void> {
+	const ext = extname(imagePath);
+	const newPath = replaceRoot(imagePath, storageDir);
+	const factory = sharp();
+	const avif = factory.clone().avif();
+	const webp = factory.clone().webp();
+	const png = factory.clone().png({ palette: true, compressionLevel: 9 });
+	checkDir(dirname(newPath));
+	return new Promise((resolve, reject) => {
+		avif.pipe(createWriteStream(newPath.replace(ext, Ext.avif)));
+		webp.pipe(createWriteStream(newPath.replace(ext, Ext.webp)));
+		png.pipe(createWriteStream(newPath.replace(ext, Ext.png)));
+		createReadStream(imagePath).on('error', reject).on('end', resolve).pipe(factory);
+	});
+}
+
+// TODO: не используется
 export async function soundConvert(
 	soundPath: string,
-	formats: Record<Extract<Ext, Ext.mp3 | Ext.ogg | Ext.m4a>, ReadonlyArray<string>>
+	formatsOptions: Record<Extract<Ext, Ext.mp3 | Ext.ogg | Ext.m4a>, ReadonlyArray<string>>
 ): Promise<void> {
 	try {
 		await Promise.all([
-			execCommand(ffmpegCommand(soundPath, Ext.mp3, formats[Ext.mp3])),
-			execCommand(ffmpegCommand(soundPath, Ext.ogg, formats[Ext.ogg])),
-			execCommand(ffmpegCommand(soundPath, Ext.m4a, formats[Ext.m4a])),
+			execCommand(ffmpegCommand(soundPath, Ext.mp3, formatsOptions[Ext.mp3])),
+			execCommand(ffmpegCommand(soundPath, Ext.ogg, formatsOptions[Ext.ogg])),
+			execCommand(ffmpegCommand(soundPath, Ext.m4a, formatsOptions[Ext.m4a])),
+		]);
+	} catch (err) {
+		throw new Error(`sound ${soundPath} failed: \n${String(err)}`);
+	}
+}
+
+export async function convertSound(
+	soundPath: string,
+	formatsOptions: Record<Extract<Ext, Ext.mp3 | Ext.ogg | Ext.m4a>, ReadonlyArray<string>>,
+	storageDir: string
+): Promise<void> {
+	const ext = extname(soundPath);
+	const newPath = replaceRoot(soundPath, storageDir);
+	checkDir(dirname(newPath));
+	try {
+		await Promise.all([
+			execCommand(['-i', soundPath, ...soundOptions, ...formatsOptions[Ext.mp3], newPath.replace(ext, Ext.mp3)]),
+			execCommand(['-i', soundPath, ...soundOptions, ...formatsOptions[Ext.ogg], newPath.replace(ext, Ext.ogg)]),
+			execCommand(['-i', soundPath, ...soundOptions, ...formatsOptions[Ext.m4a], newPath.replace(ext, Ext.m4a)]),
 		]);
 	} catch (err) {
 		throw new Error(`sound ${soundPath} failed: \n${String(err)}`);
@@ -154,4 +193,11 @@ export async function makeHash(filePath: string): Promise<string> {
 		readStream.on('end', () => resolve(hash.end().read()));
 		readStream.pipe(hash);
 	});
+}
+
+export function checkDir(dirPath: string, index = 1) {
+	if (existsSync(dirPath)) return;
+	const splitPath = dirPath.split('/').splice(0, index).join('/');
+	if (!existsSync(splitPath)) mkdirSync(splitPath);
+	checkDir(dirPath, index + 1);
 }
