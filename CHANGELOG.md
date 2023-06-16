@@ -1,5 +1,11 @@
 # @releaseband/vite-plugin-meta
 
+## 0.1.1
+
+### Patch Changes
+
+- [#32](https://github.com/releaseband/vite-plugin-meta/pull/32) [`e2d98c3`](https://github.com/releaseband/vite-plugin-meta/commit/e2d98c337beef51fbbad5fa55c06ade0b24aba4f) Thanks [@ksv90](https://github.com/ksv90)! - select files log added
+
 ## 0.1.0
 
 ### Minor Changes
