@@ -1,14 +1,15 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import ffmpeg from 'ffmpeg-static';
 import { spawn } from 'node:child_process';
-import { createReadStream, createWriteStream, readdirSync, statSync } from 'node:fs';
-import { rename, stat, unlink, writeFile } from 'node:fs/promises';
+import { createReadStream, createWriteStream, readdirSync, statSync, existsSync } from 'node:fs';
+import { rename, stat, unlink, writeFile, readFile } from 'node:fs/promises';
 import { extname, join, sep } from 'node:path';
 import ffprobeStatic from 'ffprobe-static';
 import ffprobe from 'ffprobe';
 import sharp from 'sharp';
+import { createHash } from 'node:crypto';
 
-import { MetaConfig, SoundsConfig, TexturesConfig, TrackDuration } from './types';
+import { SoundsConfig, TexturesConfig, TrackDuration } from './types';
 
 sharp.cache(false);
 
@@ -75,7 +76,17 @@ export async function removeFile(filePath: string) {
 	}
 }
 
-export async function writeConfig(dirPath: string, config: MetaConfig): Promise<void> {
+export async function readConfig(filePath: string): Promise<unknown | null> {
+	try {
+		if (!existsSync(filePath)) return null;
+		const file = await readFile(filePath, { encoding: 'utf-8' });
+		return JSON.parse(file);
+	} catch (err) {
+		throw new Error(`readConfig ${filePath} failed: \n${String(err)}`);
+	}
+}
+
+export async function writeConfig(dirPath: string, config: unknown): Promise<void> {
 	try {
 		await writeFile(dirPath, JSON.stringify(config));
 	} catch (err) {
@@ -133,4 +144,14 @@ export async function soundConvert(
 	} catch (err) {
 		throw new Error(`sound ${soundPath} failed: \n${String(err)}`);
 	}
+}
+
+export async function makeHash(filePath: string): Promise<string> {
+	const readStream = createReadStream(filePath);
+	const hash = createHash('md5');
+	hash.setEncoding('hex');
+	return new Promise((resolve) => {
+		readStream.on('end', () => resolve(hash.end().read()));
+		readStream.pipe(hash);
+	});
 }

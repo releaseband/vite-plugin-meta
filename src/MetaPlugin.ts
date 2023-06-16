@@ -8,11 +8,14 @@ import {
 	getBasePath,
 	getFilesPaths,
 	imageConvert,
+	makeHash,
 	makeTempFile,
+	readConfig,
 	removeFile,
 	soundConvert,
 	writeConfig,
 } from './processes';
+import { MetaPluginOption } from './types';
 
 // https://sound.stackexchange.com/questions/42711/what-is-the-difference-between-vorbis-and-opus
 // https://slhck.info/video/2017/02/24/vbr-settings.html
@@ -39,7 +42,11 @@ export default class MetaPlugin {
 
 	private trackDuration: Record<string, number> = {};
 
-	constructor(public readonly metaConfigName: string, private readonly version: string) {}
+	private filesHash: Record<string, string> = {};
+
+	private publicDir = '';
+
+	constructor(readonly option: MetaPluginOption) {}
 
 	public selectFiles(dir: string): void {
 		getFilesPaths(dir).forEach((file) => {
@@ -47,6 +54,12 @@ export default class MetaPlugin {
 			if (imagesExt.includes(extname)) this.imagesFiles.push(file);
 			else if (soundsExt.includes(extname)) this.soundsFiles.push(file);
 		});
+	}
+
+	public async loadHashs(dirPath: string): Promise<void> {
+		this.publicDir = dirPath;
+		const hashConfig = await readConfig(path.join(dirPath, this.option.hashConfigName));
+		if (hashConfig) this.filesHash = hashConfig as Record<string, string>;
 	}
 
 	public async audioDurationProcess(): Promise<void> {
@@ -64,10 +77,16 @@ export default class MetaPlugin {
 	public async imagesConversionProcess(): Promise<void> {
 		const jobs = this.imagesFiles.map(async (imagePath) => {
 			try {
-				const tempFileName = await makeTempFile(imagePath);
-				await imageConvert(tempFileName);
-				await removeFile(tempFileName);
-				fileLog(imagePath);
+				const fileHash = await makeHash(imagePath);
+				if (this.filesHash[imagePath] !== fileHash) {
+					this.filesHash[imagePath] = fileHash;
+					const tempFileName = await makeTempFile(imagePath);
+					await imageConvert(tempFileName);
+					await removeFile(tempFileName);
+					fileLog(imagePath);
+				} else {
+					// TODO: перенести файлы
+				}
 			} catch (err) {
 				throw new Error(`imagesConversionProcess failed: \n${String(err)}`);
 			}
@@ -78,8 +97,13 @@ export default class MetaPlugin {
 	public async soundsConversionProcess(): Promise<void> {
 		const jobs = this.soundsFiles.map(async (soundPath) => {
 			try {
-				await soundConvert(soundPath, formats);
-				fileLog(soundPath);
+				const fileHash = await makeHash(soundPath);
+				if (this.filesHash[soundPath] !== fileHash) {
+					await soundConvert(soundPath, formats);
+					fileLog(soundPath);
+				} else {
+					// TODO: перенести файлы
+				}
 			} catch (err) {
 				throw new Error(`imagesConversionProcess failed: \n${String(err)}`);
 			}
@@ -93,12 +117,13 @@ export default class MetaPlugin {
 		await Promise.all(jobs);
 		const metaConfig = {
 			prod,
-			gameVersion: this.version,
+			gameVersion: this.option.version,
 			textures: createTexturesConfig(prod),
 			sounds: createSoundsConfig(prod, this.trackDuration),
 		};
-		this.configPath = path.join(dir, this.metaConfigName);
+		this.configPath = path.join(dir, this.option.metaConfigName);
 		await writeConfig(this.configPath, metaConfig);
+		if (this.publicDir) await writeConfig(path.join(this.publicDir, this.option.hashConfigName), this.filesHash);
 	}
 
 	public async removeConfig(): Promise<void> {

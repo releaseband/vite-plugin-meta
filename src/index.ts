@@ -19,15 +19,19 @@ function createError(err: unknown): string {
 }
 
 type MetaPluginConfig = {
-	readonly isProd?: boolean;
-	readonly name?: string;
-	readonly isAudioDuration?: boolean;
+	readonly convert?: boolean;
+	readonly audioDuration?: boolean;
+	readonly metaConfigName?: string;
+	readonly hashConfigName?: string;
 };
 
 const metaPlugin = (pluginConfig: MetaPluginConfig = {}): PluginOption => {
-	const { isProd = true, name = 'meta.json', isAudioDuration = true } = pluginConfig;
-	const version = process.env['GAME_VERSION'] || '0.0.0';
-	const plugin = new MetaPlugin(name, version);
+	const { convert = true, audioDuration = true } = pluginConfig;
+	const plugin = new MetaPlugin({
+		version: process.env['GAME_VERSION'] || '0.0.0',
+		metaConfigName: pluginConfig.metaConfigName ?? 'meta.json',
+		hashConfigName: pluginConfig.hashConfigName ?? 'files-hash.json',
+	});
 
 	let config: PluginConfig;
 
@@ -45,7 +49,7 @@ const metaPlugin = (pluginConfig: MetaPluginConfig = {}): PluginOption => {
 			if (config.command === 'build') return;
 			try {
 				plugin.selectFiles(config.publicDir);
-				if (isAudioDuration) await plugin.audioDurationProcess();
+				if (audioDuration) await plugin.audioDurationProcess();
 				await plugin.writeConfig(false, config.publicDir);
 			} catch (err) {
 				config.logger.error(createError(err));
@@ -66,12 +70,13 @@ const metaPlugin = (pluginConfig: MetaPluginConfig = {}): PluginOption => {
 			logger.info(`\n${greenText('Metaprocesses started')}`);
 			try {
 				plugin.selectFiles(outDir);
-				if (isAudioDuration) await plugin.audioDurationProcess();
-				if (isProd) {
+				if (audioDuration) await plugin.audioDurationProcess();
+				if (convert) {
+					await plugin.loadHashs(config.publicDir);
 					await plugin.imagesConversionProcess();
 					await plugin.soundsConversionProcess();
 				}
-				await plugin.writeConfig(isProd, outDir);
+				await plugin.writeConfig(convert, outDir);
 				logger.info(`${greenText('✓')} metaprocesses completed\n`);
 			} catch (err) {
 				logger.error(createError(err));
