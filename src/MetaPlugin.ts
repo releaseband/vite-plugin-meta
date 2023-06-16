@@ -54,6 +54,7 @@ export default class MetaPlugin {
 			metaConfigName: option.metaConfigName ?? Names.metaConfigName,
 			hashConfigName: option.hashConfigName ?? Names.hashConfigName,
 			storageDir: option.storageDir ?? Names.storageDir,
+			selectFilesLog: option.selectFilesLog ?? false,
 		};
 	}
 
@@ -70,6 +71,7 @@ export default class MetaPlugin {
 			},
 			[new Array<string>(), new Array<string>()]
 		);
+		if (this.option.selectFilesLog) console.log(this.imagesFiles, this.soundsFiles);
 	}
 
 	public async loadHashs(): Promise<void> {
@@ -95,7 +97,7 @@ export default class MetaPlugin {
 			try {
 				const fileHash = await makeHash(imagePath);
 				if (this.filesHash[imagePath] === fileHash) return;
-				convertImage(imagePath, this.option.storageDir);
+				await convertImage(imagePath, this.option.storageDir);
 				fileLog('add', imagePath);
 				this.filesHash[imagePath] = fileHash;
 			} catch (err) {
@@ -178,18 +180,22 @@ export default class MetaPlugin {
 			const ext = path.extname(filePath);
 			const newPath = replaceRoot(filePath, this.option.storageDir);
 			await removeFile(filePath);
-			await transferFile(newPath.replace(ext, Ext.png), filePath.replace(ext, Ext.png));
-			await transferFile(newPath.replace(ext, Ext.avif), filePath.replace(ext, Ext.avif));
-			await transferFile(newPath.replace(ext, Ext.webp), filePath.replace(ext, Ext.webp));
+			await Promise.all([
+				transferFile(newPath.replace(ext, Ext.png), filePath.replace(ext, Ext.png)),
+				transferFile(newPath.replace(ext, Ext.avif), filePath.replace(ext, Ext.avif)),
+				transferFile(newPath.replace(ext, Ext.webp), filePath.replace(ext, Ext.webp)),
+			]);
 		});
 		await Promise.all(imagesJobs);
 		const soundJobs = this.soundsFiles.map(async (filePath) => {
 			const ext = path.extname(filePath);
 			const newPath = replaceRoot(filePath, this.option.storageDir);
 			await removeFile(filePath);
-			await transferFile(newPath.replace(ext, Ext.m4a), filePath.replace(ext, Ext.m4a));
-			await transferFile(newPath.replace(ext, Ext.ogg), filePath.replace(ext, Ext.ogg));
-			await transferFile(newPath.replace(ext, Ext.mp3), filePath.replace(ext, Ext.mp3));
+			await Promise.all([
+				transferFile(newPath.replace(ext, Ext.m4a), filePath.replace(ext, Ext.m4a)),
+				transferFile(newPath.replace(ext, Ext.ogg), filePath.replace(ext, Ext.ogg)),
+				transferFile(newPath.replace(ext, Ext.mp3), filePath.replace(ext, Ext.mp3)),
+			]);
 		});
 		await Promise.all(soundJobs);
 	}
