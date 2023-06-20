@@ -55,6 +55,8 @@ export default class MetaPlugin {
 			hashConfigName: option.hashConfigName ?? Names.hashConfigName,
 			storageDir: option.storageDir ?? Names.storageDir,
 			selectFilesLog: option.selectFilesLog ?? false,
+			filesHashLog: option.filesHashLog ?? false,
+			converLog: option.converLog ?? false,
 		};
 	}
 
@@ -78,6 +80,7 @@ export default class MetaPlugin {
 		checkDir(this.option.storageDir);
 		const hashConfig = await readConfig(path.join(this.option.storageDir, this.option.hashConfigName));
 		if (hashConfig) this.filesHash = hashConfig as Record<string, string>;
+		if (this.option.filesHashLog) console.log(this.filesHash);
 	}
 
 	public async audioDurationProcess(): Promise<void> {
@@ -96,6 +99,7 @@ export default class MetaPlugin {
 		const jobs = this.imagesFiles.map(async (imagePath) => {
 			try {
 				const fileHash = await makeHash(imagePath);
+				if (this.option.converLog) console.log(imagePath, this.filesHash[imagePath], fileHash);
 				if (this.filesHash[imagePath] === fileHash) return;
 				await convertImage(imagePath, this.option.storageDir);
 				fileLog('add', imagePath);
@@ -111,6 +115,7 @@ export default class MetaPlugin {
 		const jobs = this.soundsFiles.map(async (soundPath) => {
 			try {
 				const fileHash = await makeHash(soundPath);
+				if (this.option.converLog) console.log(soundPath, this.filesHash[soundPath], fileHash);
 				if (this.filesHash[soundPath] === fileHash) return;
 				await convertSound(soundPath, formats, this.option.storageDir);
 				fileLog('add', soundPath);

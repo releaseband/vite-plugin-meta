@@ -33,4 +33,6 @@ export type MetaPluginOption = {
 	readonly hashConfigName?: string;
 	readonly storageDir?: string;
 	readonly selectFilesLog?: boolean;
+	readonly filesHashLog?: boolean;
+	readonly converLog?: boolean;
 };

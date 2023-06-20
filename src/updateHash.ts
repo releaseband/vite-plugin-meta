@@ -6,7 +6,9 @@ const enum Flags {
 	storageDir = '--storage',
 	publicDir = '--public',
 	configName = '--config',
-	selectFilesLog = '--selectFiles',
+	selectFilesLog = '--selectFilesLog',
+	filesHashLog = '--filesHashLog',
+	converLog = '--converLog',
 }
 
 export const getParameter = (key: string): string | null => {
@@ -20,12 +22,15 @@ export const checkParameter = (key: string): boolean => {
 	return index !== -1;
 };
 
-const storageDir = getParameter(Flags.storageDir) ?? Names.storageDir;
-const publicDir = getParameter(Flags.publicDir) ?? Names.publicDir;
-const hashConfigName = getParameter(Flags.configName) ?? Names.hashConfigName;
-const selectFilesLog = checkParameter(Flags.selectFilesLog);
+const plugin = new MetaPlugin({
+	storageDir: getParameter(Flags.storageDir) ?? Names.storageDir,
+	hashConfigName: getParameter(Flags.configName) ?? Names.hashConfigName,
+	selectFilesLog: checkParameter(Flags.selectFilesLog),
+	filesHashLog: checkParameter(Flags.filesHashLog),
+	converLog: checkParameter(Flags.converLog),
+});
 
-const plugin = new MetaPlugin({ storageDir, hashConfigName, selectFilesLog });
+const publicDir = getParameter(Flags.publicDir) ?? Names.publicDir;
 plugin.convertProcess(publicDir).catch((err) => {
 	console.error(String(err));
 	process.exit(1);
