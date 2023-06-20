@@ -35,4 +35,5 @@ export type MetaPluginOption = {
 	readonly selectFilesLog?: boolean;
 	readonly filesHashLog?: boolean;
 	readonly converLog?: boolean;
+	readonly optionLog?: boolean;
 };

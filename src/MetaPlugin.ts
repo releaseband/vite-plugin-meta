@@ -57,7 +57,9 @@ export default class MetaPlugin {
 			selectFilesLog: option.selectFilesLog ?? false,
 			filesHashLog: option.filesHashLog ?? false,
 			converLog: option.converLog ?? false,
+			optionLog: option.optionLog ?? false,
 		};
+		if (option.optionLog) console.log(this.option);
 	}
 
 	public selectFiles(publicDir: string): void {
@@ -76,7 +78,7 @@ export default class MetaPlugin {
 		if (this.option.selectFilesLog) console.log(this.imagesFiles, this.soundsFiles);
 	}
 
-	public async loadHashs(): Promise<void> {
+	private async loadHashs(): Promise<void> {
 		checkDir(this.option.storageDir);
 		const hashConfig = await readConfig(path.join(this.option.storageDir, this.option.hashConfigName));
 		if (hashConfig) this.filesHash = hashConfig as Record<string, string>;
@@ -95,7 +97,7 @@ export default class MetaPlugin {
 		await Promise.all(jobs);
 	}
 
-	public async imagesConversionProcess(): Promise<void> {
+	private async imagesConversionProcess(): Promise<void> {
 		const jobs = this.imagesFiles.map(async (imagePath) => {
 			try {
 				const fileHash = await makeHash(imagePath);
@@ -111,7 +113,7 @@ export default class MetaPlugin {
 		await Promise.all(jobs);
 	}
 
-	public async soundsConversionProcess(): Promise<void> {
+	private async soundsConversionProcess(): Promise<void> {
 		const jobs = this.soundsFiles.map(async (soundPath) => {
 			try {
 				const fileHash = await makeHash(soundPath);
