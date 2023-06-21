@@ -1,33 +1,18 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import ffmpeg from 'ffmpeg-static';
+import ffmpegStatic from 'ffmpeg-static';
 import { spawn } from 'node:child_process';
 import { createReadStream, createWriteStream, readdirSync, statSync, existsSync, mkdirSync } from 'node:fs';
-import { rename, unlink, writeFile, readFile, copyFile } from 'node:fs/promises';
+import { unlink, writeFile, readFile, copyFile } from 'node:fs/promises';
 import { extname, join, sep, dirname } from 'node:path';
 import ffprobeStatic from 'ffprobe-static';
 import ffprobe from 'ffprobe';
 import sharp from 'sharp';
 import { createHash } from 'node:crypto';
 
-import { SoundsConfig, TexturesConfig, TrackDuration } from './types';
-import { replaceRoot } from './helpers';
+import { replaceRoot, waitConvert } from './helpers';
+import { Ext } from './types';
 
 sharp.cache(false);
-
-export const enum Ext {
-	temp = '.temp',
-	avif = '.avif',
-	webp = '.webp',
-	png = '.png',
-	mp3 = '.mp3',
-	ogg = '.ogg',
-	m4a = '.m4a',
-	jpg = '.jpg',
-	jpeg = '.jpeg',
-	wav = '.wav',
-}
-
-const soundOptions = ['-vn', '-y', '-ar', '44100', '-ac', '2'];
 
 export function getBasePath(fullPath: string): string {
 	return fullPath.split(sep).slice(1).join('/');
@@ -48,24 +33,10 @@ export function getFilesPaths(inputPath: string): ReadonlyArray<string> {
 	return filesPath;
 }
 
-export function ffmpegCommand(input: string, format: string, settings: ReadonlyArray<string>): ReadonlyArray<string> {
-	const output = input.replace(extname(input), format);
-	return ['-i', input, ...soundOptions, ...settings, output];
-}
-
-export function createTexturesConfig(prod: boolean): TexturesConfig {
-	return { formats: prod ? [Ext.avif, Ext.png, Ext.webp] : [Ext.png] };
-}
-
-export function createSoundsConfig(prod: boolean, trackDuration: TrackDuration): SoundsConfig {
-	return { formats: prod ? [Ext.m4a, Ext.mp3, Ext.ogg] : [Ext.wav], trackDuration };
-}
-
 export function execCommand(params: ReadonlyArray<string>): Promise<void> {
 	return new Promise((resolve, reject) => {
-		if (!ffmpeg) throw new Error('ffmpeg not found');
-		const { stdout } = spawn(ffmpeg, params);
-		stdout.on('error', reject).on('end', resolve);
+		if (!ffmpegStatic) throw new Error('ffmpeg not found');
+		spawn(ffmpegStatic, params).on('error', reject).on('exit', resolve);
 	});
 }
 
@@ -95,17 +66,6 @@ export async function writeConfig(dirPath: string, config: unknown): Promise<voi
 	}
 }
 
-// TODO: не используется
-export async function makeTempFile(filePath: string): Promise<string> {
-	try {
-		const tempName = filePath.replace(extname(filePath), Ext.temp);
-		await rename(filePath, tempName);
-		return tempName;
-	} catch (err) {
-		throw new Error(`makeTempFile ${filePath} failed: \n${String(err)}`);
-	}
-}
-
 export async function getAudioDuration(soundPath: string): Promise<number> {
 	try {
 		const { streams } = await ffprobe(soundPath, { path: ffprobeStatic.path });
@@ -127,50 +87,23 @@ export async function transferFile(fromFilePath: string, toFilePath: string): Pr
 	}
 }
 
-// TODO: не используется
-export async function imageConvert(imagePath: string): Promise<void> {
-	return new Promise((resolve, reject) => {
-		const ext = extname(imagePath);
-		const factory = sharp();
-		const avif = factory.clone().avif();
-		const webp = factory.clone().webp();
-		const png = factory.clone().png({ palette: true, compressionLevel: 9 });
-		avif.pipe(createWriteStream(imagePath.replace(ext, Ext.avif)));
-		webp.pipe(createWriteStream(imagePath.replace(ext, Ext.webp)));
-		png.pipe(createWriteStream(imagePath.replace(ext, Ext.png)));
-		createReadStream(imagePath).on('error', reject).on('end', resolve).pipe(factory);
-	});
-}
-
 export async function convertImage(imagePath: string, storageDir: string): Promise<void> {
 	const ext = extname(imagePath);
 	const newPath = replaceRoot(imagePath, storageDir);
+	checkDir(dirname(newPath));
 	const factory = sharp();
 	const avif = factory.clone().avif();
 	const webp = factory.clone().webp();
 	const png = factory.clone().png({ palette: true, compressionLevel: 9 });
-	checkDir(dirname(newPath));
-	return new Promise((resolve, reject) => {
-		avif.pipe(createWriteStream(newPath.replace(ext, Ext.avif)));
-		webp.pipe(createWriteStream(newPath.replace(ext, Ext.webp)));
-		png.pipe(createWriteStream(newPath.replace(ext, Ext.png)));
-		createReadStream(imagePath).on('error', reject).on('end', resolve).pipe(factory);
-	});
-}
-
-// TODO: не используется
-export async function soundConvert(
-	soundPath: string,
-	formatsOptions: Record<Extract<Ext, Ext.mp3 | Ext.ogg | Ext.m4a>, ReadonlyArray<string>>
-): Promise<void> {
+	const jobs = [waitConvert(avif), waitConvert(webp), waitConvert(png)];
+	avif.pipe(createWriteStream(newPath.replace(ext, Ext.avif)));
+	webp.pipe(createWriteStream(newPath.replace(ext, Ext.webp)));
+	png.pipe(createWriteStream(newPath.replace(ext, Ext.png)));
+	createReadStream(imagePath).pipe(factory);
 	try {
-		await Promise.all([
-			execCommand(ffmpegCommand(soundPath, Ext.mp3, formatsOptions[Ext.mp3])),
-			execCommand(ffmpegCommand(soundPath, Ext.ogg, formatsOptions[Ext.ogg])),
-			execCommand(ffmpegCommand(soundPath, Ext.m4a, formatsOptions[Ext.m4a])),
-		]);
+		await Promise.all(jobs);
 	} catch (err) {
-		throw new Error(`sound ${soundPath} failed: \n${String(err)}`);
+		throw new Error(`${convertImage.name} error ${String(err)}`);
 	}
 }
 
@@ -184,9 +117,9 @@ export async function convertSound(
 	checkDir(dirname(newPath));
 	try {
 		await Promise.all([
-			execCommand(['-i', soundPath, ...soundOptions, ...formatsOptions[Ext.mp3], newPath.replace(ext, Ext.mp3)]),
-			execCommand(['-i', soundPath, ...soundOptions, ...formatsOptions[Ext.ogg], newPath.replace(ext, Ext.ogg)]),
-			execCommand(['-i', soundPath, ...soundOptions, ...formatsOptions[Ext.m4a], newPath.replace(ext, Ext.m4a)]),
+			execCommand(['-i', soundPath, ...formatsOptions[Ext.mp3], newPath.replace(ext, Ext.mp3)]),
+			execCommand(['-i', soundPath, ...formatsOptions[Ext.ogg], newPath.replace(ext, Ext.ogg)]),
+			execCommand(['-i', soundPath, ...formatsOptions[Ext.m4a], newPath.replace(ext, Ext.m4a)]),
 		]);
 	} catch (err) {
 		throw new Error(`sound ${soundPath} failed: \n${String(err)}`);

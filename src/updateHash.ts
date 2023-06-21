@@ -10,6 +10,7 @@ const enum Flags {
 	filesHashLog = '--filesHashLog',
 	converLog = '--converLog',
 	optionLog = '--optionLog',
+	publicLog = '--publicLog',
 }
 
 export const getParameter = (key: string): string | null => {
@@ -30,6 +31,7 @@ const plugin = new MetaPlugin({
 	filesHashLog: checkParameter(Flags.filesHashLog),
 	converLog: checkParameter(Flags.converLog),
 	optionLog: checkParameter(Flags.optionLog),
+	publicLog: checkParameter(Flags.publicLog),
 });
 
 const publicDir = getParameter(Flags.publicDir) ?? Names.publicDir;

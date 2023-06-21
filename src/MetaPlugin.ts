@@ -1,12 +1,9 @@
 import path from 'node:path';
 
 import {
-	Ext,
 	checkDir,
 	convertImage,
 	convertSound,
-	createSoundsConfig,
-	createTexturesConfig,
 	getAudioDuration,
 	getBasePath,
 	getFilesPaths,
@@ -16,16 +13,17 @@ import {
 	transferFile,
 	writeConfig,
 } from './processes';
-import { MetaPluginOption, Names } from './types';
-import { replaceRoot } from './helpers';
+import { Ext, MetaPluginOption, Names } from './types';
+import { createSoundsConfig, createTexturesConfig, replaceRoot } from './helpers';
 
 // https://sound.stackexchange.com/questions/42711/what-is-the-difference-between-vorbis-and-opus
 // https://slhck.info/video/2017/02/24/vbr-settings.html
 // https://tritondigitalcommunity.force.com/s/article/Choosing-Audio-Bitrate-Settings?language=en_US
+const soundOptions = ['-vn', '-y', '-ar', '44100', '-ac', '2'];
 const formats = {
-	'.mp3': ['-f', 'mp3', '-aq', '6'],
-	'.ogg': ['-acodec', 'libvorbis', '-f', 'ogg', '-aq', '2'],
-	'.m4a': ['-ab', '96k', '-strict', '-2'],
+	'.mp3': [...soundOptions, '-f', 'mp3', '-aq', '6'],
+	'.ogg': [...soundOptions, '-acodec', 'libvorbis', '-f', 'ogg', '-aq', '2'],
+	'.m4a': [...soundOptions, '-ab', '96k', '-strict', '-2'],
 };
 
 function fileLog(...args: unknown[]) {
@@ -46,18 +44,19 @@ export default class MetaPlugin {
 
 	private publicDir = '';
 
-	private readonly option: Required<MetaPluginOption>;
+	private readonly option: MetaPluginOption;
 
-	constructor(option: MetaPluginOption = {}) {
+	constructor(option: Partial<MetaPluginOption> = {}) {
 		this.option = {
-			version: process.env['GAME_VERSION'] || '0.0.0',
+			version: '0.0.0',
 			metaConfigName: option.metaConfigName ?? Names.metaConfigName,
 			hashConfigName: option.hashConfigName ?? Names.hashConfigName,
 			storageDir: option.storageDir ?? Names.storageDir,
-			selectFilesLog: option.selectFilesLog ?? false,
-			filesHashLog: option.filesHashLog ?? false,
-			converLog: option.converLog ?? false,
-			optionLog: option.optionLog ?? false,
+			selectFilesLog: option.selectFilesLog,
+			filesHashLog: option.filesHashLog,
+			converLog: option.converLog,
+			optionLog: option.optionLog,
+			publicLog: option.publicLog,
 		};
 		if (option.optionLog) console.log(this.option);
 	}
@@ -66,6 +65,7 @@ export default class MetaPlugin {
 		this.publicDir = publicDir;
 		const imagesExt: ReadonlyArray<string> = [Ext.png, Ext.jpg, Ext.jpeg];
 		const soundsExt: ReadonlyArray<string> = [Ext.wav];
+		if (this.option.publicLog) console.log(publicDir);
 		[this.imagesFiles, this.soundsFiles] = getFilesPaths(publicDir).reduce(
 			([imagesFiles, soundsFiles], file) => {
 				const extname = path.extname(file).toLowerCase();
