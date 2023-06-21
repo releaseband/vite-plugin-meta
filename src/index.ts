@@ -4,6 +4,7 @@ import { Logger, PluginOption } from 'vite';
 
 import MetaPlugin from './MetaPlugin';
 import { buildError, errorStack, greenText, redText } from './utils';
+import { MetaPluginOption } from './types';
 
 export type PluginConfig = {
 	readonly command: 'build' | 'serve';
@@ -18,21 +19,16 @@ function createError(err: unknown): string {
 	return `\n${redText(error.message)}${errorStack(error)}`;
 }
 
-type MetaPluginConfig = {
+type MetaPluginConfig = Partial<MetaPluginOption> & {
 	readonly convert?: boolean;
 	readonly audioDuration?: boolean;
-	readonly metaConfigName?: string;
-	readonly hashConfigName?: string;
-	readonly storageDir?: string;
 };
 
 const metaPlugin = (pluginConfig: MetaPluginConfig = {}): PluginOption => {
-	const { convert = true, audioDuration = true } = pluginConfig;
+	const { convert = true, audioDuration = true, ...options } = pluginConfig;
 	const plugin = new MetaPlugin({
-		version: process.env['GAME_VERSION'] || '0.0.0',
-		metaConfigName: pluginConfig.metaConfigName,
-		hashConfigName: pluginConfig.hashConfigName,
-		storageDir: pluginConfig.storageDir,
+		...options,
+		version: process.env['GAME_VERSION'],
 	});
 
 	let config: PluginConfig;
