@@ -19,6 +19,7 @@ export function getBasePath(fullPath: string): string {
 }
 
 export function getFilesPaths(inputPath: string): ReadonlyArray<string> {
+	if (!existsSync(inputPath)) return [];
 	const filesPath: Array<string> = [];
 	readdirSync(inputPath).forEach((nestedPath) => {
 		try {
