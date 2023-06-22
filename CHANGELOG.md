@@ -1,5 +1,11 @@
 # @releaseband/vite-plugin-meta
 
+## 0.1.5
+
+### Patch Changes
+
+- [#40](https://github.com/releaseband/vite-plugin-meta/pull/40) [`0aa31ef`](https://github.com/releaseband/vite-plugin-meta/commit/0aa31ef7b8f825638fe27f1ff4eed42cc87cd048) Thanks [@ksv90](https://github.com/ksv90)! - names changed
+
 ## 0.1.4
 
 ### Patch Changes
