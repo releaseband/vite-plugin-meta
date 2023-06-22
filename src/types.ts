@@ -2,7 +2,7 @@ export const enum Names {
 	metaConfigName = 'meta.json',
 	hashConfigName = 'files-hash.json',
 	publicDir = 'public',
-	storageDir = 'storage',
+	storageDir = 'resourceCache',
 }
 
 export const enum Ext {
@@ -50,4 +50,5 @@ export type MetaPluginOption = {
 	readonly converLog?: boolean;
 	readonly optionLog?: boolean;
 	readonly publicLog?: boolean;
+	readonly fileChangeLog?: boolean;
 };
