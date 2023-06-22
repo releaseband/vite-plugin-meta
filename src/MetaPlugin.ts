@@ -1,6 +1,7 @@
 import path from 'node:path';
 
 import {
+	checkDir,
 	convertImage,
 	convertSound,
 	getAudioDuration,
@@ -80,7 +81,8 @@ export default class MetaPlugin {
 	}
 
 	private async loadHashs(): Promise<void> {
-		const hashConfig = await readConfig(path.join(this.publicDir, this.option.hashConfigName));
+		checkDir(this.option.storageDir);
+		const hashConfig = await readConfig(path.join(this.option.storageDir, this.option.hashConfigName));
 		if (hashConfig) this.filesHash = hashConfig as Record<string, string>;
 		if (this.option.filesHashLog) console.log(this.filesHash);
 	}
@@ -144,7 +146,7 @@ export default class MetaPlugin {
 	}
 
 	public async writeHashConfig(): Promise<void> {
-		const configPath = path.join(this.publicDir, this.option.hashConfigName);
+		const configPath = path.join(this.option.storageDir, this.option.hashConfigName);
 		await writeConfig(configPath, this.filesHash);
 	}
 
