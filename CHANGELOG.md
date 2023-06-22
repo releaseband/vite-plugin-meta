@@ -1,5 +1,11 @@
 # @releaseband/vite-plugin-meta
 
+## 0.1.6
+
+### Patch Changes
+
+- [#42](https://github.com/releaseband/vite-plugin-meta/pull/42) [`10808f0`](https://github.com/releaseband/vite-plugin-meta/commit/10808f04096d0d27cee718b640f3d3c99f9818d7) Thanks [@ksv90](https://github.com/ksv90)! - config moved to public folder
+
 ## 0.1.5
 
 ### Patch Changes
