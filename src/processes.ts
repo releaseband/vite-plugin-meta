@@ -9,13 +9,13 @@ import ffprobe from 'ffprobe';
 import sharp from 'sharp';
 import { createHash } from 'node:crypto';
 
-import { replaceRoot, waitConvert } from './helpers';
+import { waitConvert } from './helpers';
 import { Ext } from './types';
 
 sharp.cache(false);
 
 export function getBasePath(fullPath: string): string {
-	return fullPath.split(sep).slice(1).join('/');
+	return fullPath.split(sep).slice(1).join(sep);
 }
 
 export function getFilesPaths(inputPath: string): ReadonlyArray<string> {
@@ -138,7 +138,15 @@ export async function makeHash(filePath: string): Promise<string> {
 
 export function checkDir(dirPath: string, index = 1) {
 	if (existsSync(dirPath)) return;
-	const splitPath = dirPath.split('/').splice(0, index).join('/');
+	const splitPath = dirPath.split(sep).splice(0, index).join(sep);
 	if (!existsSync(splitPath)) mkdirSync(splitPath);
 	checkDir(dirPath, index + 1);
+}
+
+export function replaceRoot(filePath: string, root: string): string {
+	if (!filePath) throw new Error(`${replaceRoot.name} filePath error`);
+	let splitPath = filePath.split(sep);
+	if (splitPath.length === 1) splitPath = [root, filePath];
+	else splitPath[0] = root;
+	return splitPath.join(sep);
 }

@@ -10,11 +10,12 @@ import {
 	makeHash,
 	readConfig,
 	removeFile,
+	replaceRoot,
 	transferFile,
 	writeConfig,
 } from './processes';
 import { Ext, MetaPluginOption, Names } from './types';
-import { createSoundsConfig, createTexturesConfig, replaceRoot } from './helpers';
+import { createSoundsConfig, createTexturesConfig } from './helpers';
 
 // https://sound.stackexchange.com/questions/42711/what-is-the-difference-between-vorbis-and-opus
 // https://slhck.info/video/2017/02/24/vbr-settings.html
