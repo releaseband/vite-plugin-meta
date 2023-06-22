@@ -3,14 +3,15 @@ import MetaPlugin from './MetaPlugin';
 import { Names } from './types';
 
 const enum Flags {
-	storageDir = '--storage',
-	publicDir = '--public',
+	storageDir = '--storageDir',
+	publicDir = '--publicDir',
 	configName = '--config',
 	selectFilesLog = '--selectFilesLog',
 	filesHashLog = '--filesHashLog',
 	converLog = '--converLog',
 	optionLog = '--optionLog',
 	publicLog = '--publicLog',
+	fileChangeLog = '--fileChangeLog',
 }
 
 export const getParameter = (key: string): string | null => {
@@ -32,6 +33,7 @@ const plugin = new MetaPlugin({
 	converLog: checkParameter(Flags.converLog),
 	optionLog: checkParameter(Flags.optionLog),
 	publicLog: checkParameter(Flags.publicLog),
+	fileChangeLog: checkParameter(Flags.fileChangeLog),
 });
 
 const publicDir = getParameter(Flags.publicDir) ?? Names.publicDir;

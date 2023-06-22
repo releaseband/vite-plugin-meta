@@ -26,14 +26,14 @@
 		"README.md"
 	],
 	"scripts": {
-		"build": "tsup-node src/index.ts src/updateHash.ts --sourcemap --clean --dts --format cjs,esm",
+		"build": "tsup-node src/index.ts src/convert.ts --sourcemap --clean --dts --format cjs,esm",
 		"dev": "pnpm build --watch",
 		"changeset": "changeset",
 		"version": "changeset version && pnpm install --lockfile-only",
 		"publish": "pnpm run build && changeset publish"
 	},
 	"bin": {
-		"ufs": "dist/updateHash.js"
+		"file-convert": "dist/convert.js"
 	},
 	"dependencies": {
 		"ffmpeg-static": "^5.1.0",
@@ -61,9 +61,9 @@
 			"optional": true
 		}
 	},
-	"packageManager": "pnpm@7.17.0",
 	"engines": {
-		"node": ">=16.0.0",
-		"pnpm": ">=7.0.0"
-	}
+		"node": ">=18",
+		"pnpm": ">=7"
+	},
+	"packageManager": "pnpm@7.32.2"
 }

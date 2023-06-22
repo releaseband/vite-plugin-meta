@@ -19,6 +19,7 @@ import { createSoundsConfig, createTexturesConfig, replaceRoot } from './helpers
 // https://sound.stackexchange.com/questions/42711/what-is-the-difference-between-vorbis-and-opus
 // https://slhck.info/video/2017/02/24/vbr-settings.html
 // https://tritondigitalcommunity.force.com/s/article/Choosing-Audio-Bitrate-Settings?language=en_US
+// https://ffmpeg.org/ffmpeg.html
 const soundOptions = ['-vn', '-y', '-ar', '44100', '-ac', '2'];
 const formats = {
 	'.mp3': [...soundOptions, '-f', 'mp3', '-aq', '6'],
@@ -48,7 +49,7 @@ export default class MetaPlugin {
 
 	constructor(option: Partial<MetaPluginOption> = {}) {
 		this.option = {
-			version: '0.0.0',
+			version: option.version ?? '0.0.0',
 			metaConfigName: option.metaConfigName ?? Names.metaConfigName,
 			hashConfigName: option.hashConfigName ?? Names.hashConfigName,
 			storageDir: option.storageDir ?? Names.storageDir,
@@ -57,6 +58,7 @@ export default class MetaPlugin {
 			converLog: option.converLog,
 			optionLog: option.optionLog,
 			publicLog: option.publicLog,
+			fileChangeLog: option.fileChangeLog,
 		};
 		if (option.optionLog) console.log(this.option);
 	}
@@ -104,7 +106,7 @@ export default class MetaPlugin {
 				if (this.option.converLog) console.log(imagePath, this.filesHash[imagePath], fileHash);
 				if (this.filesHash[imagePath] === fileHash) return;
 				await convertImage(imagePath, this.option.storageDir);
-				fileLog('add', imagePath);
+				if (this.option.fileChangeLog) fileLog('add', imagePath);
 				this.filesHash[imagePath] = fileHash;
 			} catch (err) {
 				throw new Error(`imagesConversionProcess failed: \n${String(err)}`);
@@ -120,7 +122,7 @@ export default class MetaPlugin {
 				if (this.option.converLog) console.log(soundPath, this.filesHash[soundPath], fileHash);
 				if (this.filesHash[soundPath] === fileHash) return;
 				await convertSound(soundPath, formats, this.option.storageDir);
-				fileLog('add', soundPath);
+				if (this.option.fileChangeLog) fileLog('add', soundPath);
 				this.filesHash[soundPath] = fileHash;
 			} catch (err) {
 				throw new Error(`soundsConversionProcess failed: \n${String(err)}`);
@@ -158,7 +160,7 @@ export default class MetaPlugin {
 				newPath = newPath.replace(extname, Ext.png);
 				if (this.imagesFiles.includes(newPath)) return;
 				await removeFile(filePath);
-				fileLog('remove', filePath);
+				if (this.option.fileChangeLog) fileLog('remove', filePath);
 				delete this.filesHash[newPath];
 				return;
 			}
@@ -166,7 +168,7 @@ export default class MetaPlugin {
 				newPath = newPath.replace(extname, Ext.wav);
 				if (this.soundsFiles.includes(newPath)) return;
 				await removeFile(filePath);
-				fileLog('remove', filePath);
+				if (this.option.fileChangeLog) fileLog('remove', filePath);
 				delete this.filesHash[newPath];
 			}
 		});

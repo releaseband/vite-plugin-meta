@@ -27,8 +27,8 @@ type MetaPluginConfig = Partial<MetaPluginOption> & {
 const metaPlugin = (pluginConfig: MetaPluginConfig = {}): PluginOption => {
 	const { convert = true, audioDuration = true, ...options } = pluginConfig;
 	const plugin = new MetaPlugin({
-		...options,
 		version: process.env['GAME_VERSION'],
+		...options,
 	});
 
 	let config: PluginConfig;

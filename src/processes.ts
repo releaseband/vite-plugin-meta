@@ -103,7 +103,7 @@ export async function convertImage(imagePath: string, storageDir: string): Promi
 	try {
 		await Promise.all(jobs);
 	} catch (err) {
-		throw new Error(`${convertImage.name} error ${String(err)}`);
+		throw new Error(`${convertImage.name} ${imagePath} file error:\n${String(err)}`);
 	}
 }
 
@@ -122,7 +122,7 @@ export async function convertSound(
 			execCommand(['-i', soundPath, ...formatsOptions[Ext.m4a], newPath.replace(ext, Ext.m4a)]),
 		]);
 	} catch (err) {
-		throw new Error(`sound ${soundPath} failed: \n${String(err)}`);
+		throw new Error(`${convertSound} ${soundPath} file error:\n${String(err)}`);
 	}
 }
 
