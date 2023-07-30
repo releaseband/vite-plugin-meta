@@ -5,14 +5,12 @@ import { createReadStream, createWriteStream, readdirSync, statSync, existsSync,
 import { unlink, writeFile, readFile, copyFile } from 'node:fs/promises';
 import { extname, join, sep, dirname } from 'node:path';
 import ffprobeStatic from 'ffprobe-static';
-import ffprobe from 'ffprobe';
+import ffprobe, { type FileInfo } from 'ffprobe';
 import sharp from 'sharp';
 import { createHash } from 'node:crypto';
 
 import { waitConvert } from './helpers';
 import { Ext } from './types';
-
-sharp.cache(false);
 
 export function getBasePath(fullPath: string): string {
 	return fullPath.split(sep).slice(1).join(sep);
@@ -34,7 +32,7 @@ export function getFilesPaths(inputPath: string): ReadonlyArray<string> {
 	return filesPath;
 }
 
-export function execCommand(params: ReadonlyArray<string>): Promise<void> {
+export function ffmpeg(...params: ReadonlyArray<string>): Promise<void> {
 	return new Promise((resolve, reject) => {
 		if (!ffmpegStatic) throw new Error('ffmpeg not found');
 		spawn(ffmpegStatic, params).on('error', reject).on('exit', resolve);
@@ -67,10 +65,16 @@ export async function writeConfig(dirPath: string, config: unknown): Promise<voi
 	}
 }
 
+export async function getFileInfo(filePath: string): Promise<FileInfo> {
+	const response = await ffprobe(filePath, { path: ffprobeStatic.path });
+	const [info] = response.streams;
+	if (!info) throw new Error(`File ${filePath} has no information`);
+	return info;
+}
+
 export async function getAudioDuration(soundPath: string): Promise<number> {
 	try {
-		const { streams } = await ffprobe(soundPath, { path: ffprobeStatic.path });
-		const { duration } = streams.find(({ duration }) => !!duration) ?? {};
+		const { duration } = await getFileInfo(soundPath);
 		if (!duration) throw new Error(`Sound ${soundPath} duration not found`);
 		return parseFloat(duration);
 	} catch (err) {
@@ -103,8 +107,22 @@ export async function convertImage(imagePath: string, storageDir: string): Promi
 	createReadStream(imagePath).pipe(factory);
 	try {
 		await Promise.all(jobs);
+		sharp.cache(false);
 	} catch (err) {
 		throw new Error(`${convertImage.name} ${imagePath} file error:\n${String(err)}`);
+	}
+}
+
+export async function convertAnimation(animationPath: string, storageDir: string): Promise<void> {
+	const ext = extname(animationPath);
+	const newPath = replaceRoot(animationPath, storageDir);
+	checkDir(dirname(newPath));
+	try {
+		await copyFile(animationPath, newPath);
+		await ffmpeg('-i', animationPath, '-y', '-loop', '0', newPath.replace(ext, Ext.webp));
+		await ffmpeg('-i', animationPath, '-y', '-c:v', 'libaom-av1', newPath.replace(ext, Ext.avif));
+	} catch (err) {
+		throw new Error(`${convertAnimation.name} ${animationPath} file error:\n${String(err)}`);
 	}
 }
 
@@ -118,9 +136,9 @@ export async function convertSound(
 	checkDir(dirname(newPath));
 	try {
 		await Promise.all([
-			execCommand(['-i', soundPath, ...formatsOptions[Ext.mp3], newPath.replace(ext, Ext.mp3)]),
-			execCommand(['-i', soundPath, ...formatsOptions[Ext.ogg], newPath.replace(ext, Ext.ogg)]),
-			execCommand(['-i', soundPath, ...formatsOptions[Ext.m4a], newPath.replace(ext, Ext.m4a)]),
+			ffmpeg('-i', soundPath, ...formatsOptions[Ext.mp3], newPath.replace(ext, Ext.mp3)),
+			ffmpeg('-i', soundPath, ...formatsOptions[Ext.ogg], newPath.replace(ext, Ext.ogg)),
+			ffmpeg('-i', soundPath, ...formatsOptions[Ext.m4a], newPath.replace(ext, Ext.m4a)),
 		]);
 	} catch (err) {
 		throw new Error(`${convertSound} ${soundPath} file error:\n${String(err)}`);

@@ -6,10 +6,10 @@ export const enum Names {
 }
 
 export const enum Ext {
-	temp = '.temp',
 	avif = '.avif',
 	webp = '.webp',
 	png = '.png',
+	gif = '.gif',
 	mp3 = '.mp3',
 	ogg = '.ogg',
 	m4a = '.m4a',

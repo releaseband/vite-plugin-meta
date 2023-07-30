@@ -36,11 +36,11 @@
 		"file-convert": "dist/convert.js"
 	},
 	"dependencies": {
-		"ffmpeg-static": "^5.1.0",
+		"ffmpeg-static": "^5.2.0",
 		"ffprobe": "^1.1.2",
 		"ffprobe-static": "^3.1.0",
 		"picocolors": "^1.0.0",
-		"sharp": "^0.31.2"
+		"sharp": "^0.32.4"
 	},
 	"devDependencies": {
 		"@changesets/changelog-github": "^0.4.4",
@@ -48,7 +48,7 @@
 		"@commitlint/cli": "^16.2.4",
 		"@commitlint/cz-commitlint": "^16.2.4",
 		"@releaseband/commitlint-config": "^1.0.4",
-		"@types/sharp": "^0.31.0",
+		"@types/sharp": "^0.32.0",
 		"tsup": "^6.7.0",
 		"typescript": "^5.0.2",
 		"vite": "^4.0.4"

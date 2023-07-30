@@ -16,3 +16,8 @@ export function greenText(str: string): string {
 export function redText(str: string): string {
 	return colors.red(str);
 }
+
+export function fileLog(...args: unknown[]) {
+	// eslint-disable-next-line no-console
+	console.log('\t - ', ...args);
+}
