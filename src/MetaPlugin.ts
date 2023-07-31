@@ -5,18 +5,16 @@ import {
 	convertAnimation,
 	convertSound,
 	getAudioDuration,
-	getBasePath,
 	getFileInfo,
 	getFilesPaths,
 	makeHash,
 	readConfig,
 	removeFile,
-	replaceRoot,
 	transferFile,
 	writeConfig,
 } from './processes';
 import { Ext, MetaPluginOption, Names } from './types';
-import { createSoundsConfig, createTexturesConfig } from './helpers';
+import { createSoundsConfig, createTexturesConfig, getBasePath, replaceRoot } from './helpers';
 import { fileLog } from './utils';
 
 // https://sound.stackexchange.com/questions/42711/what-is-the-difference-between-vorbis-and-opus
@@ -94,7 +92,10 @@ export default class MetaPlugin {
 		const jobs = this.soundsFiles.map(async (soundPath) => {
 			try {
 				const audioDuration = await getAudioDuration(soundPath);
-				this.trackDuration[getBasePath(soundPath)] = audioDuration;
+				let key = getBasePath(soundPath, path.sep);
+				if (path.sep !== '/') key = key.replaceAll(path.sep, '/');
+				this.trackDuration[key] = audioDuration;
+				console.log(key);
 			} catch (err) {
 				throw new Error(`audioDurationProcess ${soundPath} failed: \n${String(err)}`);
 			}
@@ -179,7 +180,7 @@ export default class MetaPlugin {
 		const animationsExt: ReadonlyArray<string> = [Ext.gif, Ext.webp, Ext.avif];
 		const jobs = getFilesPaths(this.option.storageDir).map(async (filePath) => {
 			const extname = path.extname(filePath);
-			let newPath = replaceRoot(filePath, this.publicDir);
+			let newPath = replaceRoot(filePath, this.publicDir, path.sep);
 			if (imagesExt.includes(extname)) {
 				newPath = newPath.replace(extname, Ext.png);
 				if (this.imagesFiles.includes(newPath)) return;
@@ -221,7 +222,7 @@ export default class MetaPlugin {
 	public async transferProcess(): Promise<void> {
 		const imagesJobs = this.imagesFiles.map(async (filePath) => {
 			const ext = path.extname(filePath);
-			const newPath = replaceRoot(filePath, this.option.storageDir);
+			const newPath = replaceRoot(filePath, this.option.storageDir, path.sep);
 			await removeFile(filePath);
 			await Promise.all([
 				transferFile(newPath.replace(ext, Ext.png), filePath.replace(ext, Ext.png)),
@@ -232,7 +233,7 @@ export default class MetaPlugin {
 		await Promise.all(imagesJobs);
 		const soundJobs = this.soundsFiles.map(async (filePath) => {
 			const ext = path.extname(filePath);
-			const newPath = replaceRoot(filePath, this.option.storageDir);
+			const newPath = replaceRoot(filePath, this.option.storageDir, path.sep);
 			await removeFile(filePath);
 			await Promise.all([
 				transferFile(newPath.replace(ext, Ext.m4a), filePath.replace(ext, Ext.m4a)),
@@ -243,7 +244,7 @@ export default class MetaPlugin {
 		await Promise.all(soundJobs);
 		const animationJobs = this.animationsFiles.map(async (filePath) => {
 			const ext = path.extname(filePath);
-			const newPath = replaceRoot(filePath, this.option.storageDir);
+			const newPath = replaceRoot(filePath, this.option.storageDir, path.sep);
 			await removeFile(filePath);
 			await Promise.all([
 				transferFile(newPath.replace(ext, Ext.gif), filePath.replace(ext, Ext.gif)),
