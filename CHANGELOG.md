@@ -1,5 +1,15 @@
 # @releaseband/vite-plugin-meta
 
+## 0.2.0
+
+### Minor Changes
+
+- [#48](https://github.com/releaseband/vite-plugin-meta/pull/48) [`ae19f2f`](https://github.com/releaseband/vite-plugin-meta/commit/ae19f2ff11c3ff413089ff60224a16b12655c310) Thanks [@ksv90](https://github.com/ksv90)! - gif convert added
+
+### Patch Changes
+
+- [#50](https://github.com/releaseband/vite-plugin-meta/pull/50) [`288ff85`](https://github.com/releaseband/vite-plugin-meta/commit/288ff85104c3b9c4417b9cf3983c90ff433432df) Thanks [@ksv90](https://github.com/ksv90)! - path bug fixed
+
 ## 0.1.8
 
 ### Patch Changes
