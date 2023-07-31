@@ -9,12 +9,8 @@ import ffprobe, { type FileInfo } from 'ffprobe';
 import sharp from 'sharp';
 import { createHash } from 'node:crypto';
 
-import { waitConvert } from './helpers';
+import { replaceRoot, waitConvert } from './helpers';
 import { Ext } from './types';
-
-export function getBasePath(fullPath: string): string {
-	return fullPath.split(sep).slice(1).join(sep);
-}
 
 export function getFilesPaths(inputPath: string): ReadonlyArray<string> {
 	if (!existsSync(inputPath)) return [];
@@ -76,7 +72,7 @@ export async function getAudioDuration(soundPath: string): Promise<number> {
 	try {
 		const { duration } = await getFileInfo(soundPath);
 		if (!duration) throw new Error(`Sound ${soundPath} duration not found`);
-		return parseFloat(duration);
+		return globalThis.parseFloat(duration);
 	} catch (err) {
 		if (!err) throw new Error(`Sound ${soundPath} error`);
 		if (err instanceof Error) throw err;
@@ -94,7 +90,7 @@ export async function transferFile(fromFilePath: string, toFilePath: string): Pr
 
 export async function convertImage(imagePath: string, storageDir: string): Promise<void> {
 	const ext = extname(imagePath);
-	const newPath = replaceRoot(imagePath, storageDir);
+	const newPath = replaceRoot(imagePath, storageDir, sep);
 	checkDir(dirname(newPath));
 	const factory = sharp();
 	const avif = factory.clone().avif();
@@ -115,12 +111,14 @@ export async function convertImage(imagePath: string, storageDir: string): Promi
 
 export async function convertAnimation(animationPath: string, storageDir: string): Promise<void> {
 	const ext = extname(animationPath);
-	const newPath = replaceRoot(animationPath, storageDir);
+	const newPath = replaceRoot(animationPath, storageDir, sep);
 	checkDir(dirname(newPath));
 	try {
-		await copyFile(animationPath, newPath);
-		await ffmpeg('-i', animationPath, '-y', '-loop', '0', newPath.replace(ext, Ext.webp));
-		await ffmpeg('-i', animationPath, '-y', '-c:v', 'libaom-av1', newPath.replace(ext, Ext.avif));
+		await Promise.all([
+			copyFile(animationPath, newPath),
+			ffmpeg('-i', animationPath, '-y', '-loop', '0', newPath.replace(ext, Ext.webp)),
+			ffmpeg('-i', animationPath, '-y', '-c:v', 'libaom-av1', newPath.replace(ext, Ext.avif)),
+		]);
 	} catch (err) {
 		throw new Error(`${convertAnimation.name} ${animationPath} file error:\n${String(err)}`);
 	}
@@ -132,7 +130,7 @@ export async function convertSound(
 	storageDir: string
 ): Promise<void> {
 	const ext = extname(soundPath);
-	const newPath = replaceRoot(soundPath, storageDir);
+	const newPath = replaceRoot(soundPath, storageDir, sep);
 	checkDir(dirname(newPath));
 	try {
 		await Promise.all([
@@ -159,12 +157,4 @@ export function checkDir(dirPath: string, index = 1) {
 	const splitPath = dirPath.split(sep).splice(0, index).join(sep);
 	if (!existsSync(splitPath)) mkdirSync(splitPath);
 	checkDir(dirPath, index + 1);
-}
-
-export function replaceRoot(filePath: string, root: string): string {
-	if (!filePath) throw new Error(`${replaceRoot.name} filePath error`);
-	let splitPath = filePath.split(sep);
-	if (splitPath.length === 1) splitPath = [root, filePath];
-	else splitPath[0] = root;
-	return splitPath.join(sep);
 }
