@@ -95,7 +95,6 @@ export default class MetaPlugin {
 				let key = getBasePath(soundPath, path.sep);
 				if (path.sep !== '/') key = key.replaceAll(path.sep, '/');
 				this.trackDuration[key] = audioDuration;
-				console.log(key);
 			} catch (err) {
 				throw new Error(`audioDurationProcess ${soundPath} failed: \n${String(err)}`);
 			}
