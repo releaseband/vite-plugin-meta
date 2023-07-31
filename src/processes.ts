@@ -114,7 +114,7 @@ export async function convertAnimation(animationPath: string, storageDir: string
 	const newPath = replaceRoot(animationPath, storageDir, sep);
 	checkDir(dirname(newPath));
 	try {
-		Promise.all([
+		await Promise.all([
 			copyFile(animationPath, newPath),
 			ffmpeg('-i', animationPath, '-y', '-loop', '0', newPath.replace(ext, Ext.webp)),
 			ffmpeg('-i', animationPath, '-y', '-c:v', 'libaom-av1', newPath.replace(ext, Ext.avif)),
