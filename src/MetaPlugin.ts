@@ -1,11 +1,12 @@
 import path from 'node:path';
-
 import {
 	checkDir,
 	convertImage,
+	convertAnimation,
 	convertSound,
 	getAudioDuration,
 	getBasePath,
+	getFileInfo,
 	getFilesPaths,
 	makeHash,
 	readConfig,
@@ -16,6 +17,7 @@ import {
 } from './processes';
 import { Ext, MetaPluginOption, Names } from './types';
 import { createSoundsConfig, createTexturesConfig } from './helpers';
+import { fileLog } from './utils';
 
 // https://sound.stackexchange.com/questions/42711/what-is-the-difference-between-vorbis-and-opus
 // https://slhck.info/video/2017/02/24/vbr-settings.html
@@ -28,17 +30,14 @@ const formats = {
 	'.m4a': [...soundOptions, '-ab', '96k', '-strict', '-2'],
 };
 
-function fileLog(...args: unknown[]) {
-	// eslint-disable-next-line no-console
-	console.log('\t - ', ...args);
-}
-
 export default class MetaPlugin {
 	private configPath?: string;
 
 	private imagesFiles = new Array<string>();
 
 	private soundsFiles = new Array<string>();
+
+	private animationsFiles = new Array<string>();
 
 	private trackDuration: Record<string, number> = {};
 
@@ -68,17 +67,20 @@ export default class MetaPlugin {
 		this.publicDir = publicDir;
 		const imagesExt: ReadonlyArray<string> = [Ext.png, Ext.jpg, Ext.jpeg];
 		const soundsExt: ReadonlyArray<string> = [Ext.wav];
+		const animationsExt: ReadonlyArray<string> = [Ext.gif];
+
 		if (this.option.publicLog) console.log(publicDir);
-		[this.imagesFiles, this.soundsFiles] = getFilesPaths(publicDir).reduce(
-			([imagesFiles, soundsFiles], file) => {
+		[this.imagesFiles, this.soundsFiles, this.animationsFiles] = getFilesPaths(publicDir).reduce(
+			([imagesFiles, soundsFiles, animationsFiles], file) => {
 				const extname = path.extname(file).toLowerCase();
-				if (imagesExt.includes(extname)) return [[...imagesFiles, file], soundsFiles];
-				else if (soundsExt.includes(extname)) return [imagesFiles, [...soundsFiles, file]];
-				return [imagesFiles, soundsFiles];
+				if (imagesExt.includes(extname)) imagesFiles.push(file);
+				else if (soundsExt.includes(extname)) soundsFiles.push(file);
+				else if (animationsExt.includes(extname)) animationsFiles.push(file);
+				return [imagesFiles, soundsFiles, animationsFiles];
 			},
-			[new Array<string>(), new Array<string>()]
+			[new Array<string>(), new Array<string>(), new Array<string>()]
 		);
-		if (this.option.selectFilesLog) console.log(this.imagesFiles, this.soundsFiles);
+		if (this.option.selectFilesLog) console.log(this.imagesFiles, this.soundsFiles, this.animationsFiles);
 	}
 
 	private async loadHashs(): Promise<void> {
@@ -132,6 +134,26 @@ export default class MetaPlugin {
 		await Promise.all(jobs);
 	}
 
+	private async animationConversionProcess(): Promise<void> {
+		const jobs = this.animationsFiles.map(async (animationPath) => {
+			try {
+				const { nb_frames } = await getFileInfo(animationPath);
+				if (nb_frames && +nb_frames > 50) {
+					console.warn(`image "${animationPath}" contains ${nb_frames} frames`);
+				}
+				const fileHash = await makeHash(animationPath);
+				if (this.option.converLog) console.log(animationPath, this.filesHash[animationPath], fileHash);
+				if (this.filesHash[animationPath] === fileHash) return;
+				await convertAnimation(animationPath, this.option.storageDir);
+				if (this.option.fileChangeLog) fileLog('add', animationPath);
+				this.filesHash[animationPath] = fileHash;
+			} catch (err) {
+				throw new Error(`animationConversionProcess failed: \n${String(err)}`);
+			}
+		});
+		await Promise.all(jobs);
+	}
+
 	public async writeConfig(prod: boolean, dir: string): Promise<void> {
 		const jobs = [this.removeConfig()];
 		if (prod) jobs.push(...this.soundsFiles.map((soundPath) => removeFile(soundPath)));
@@ -154,12 +176,14 @@ export default class MetaPlugin {
 	private async checkFiles() {
 		const imagesExt: ReadonlyArray<string> = [Ext.png, Ext.avif, Ext.webp];
 		const soundsExt: ReadonlyArray<string> = [Ext.m4a, Ext.mp3, Ext.ogg];
+		const animationsExt: ReadonlyArray<string> = [Ext.gif, Ext.webp, Ext.avif];
 		const jobs = getFilesPaths(this.option.storageDir).map(async (filePath) => {
 			const extname = path.extname(filePath);
 			let newPath = replaceRoot(filePath, this.publicDir);
 			if (imagesExt.includes(extname)) {
 				newPath = newPath.replace(extname, Ext.png);
 				if (this.imagesFiles.includes(newPath)) return;
+				if (this.animationsFiles.includes(newPath.replace(Ext.png, Ext.gif))) return;
 				await removeFile(filePath);
 				if (this.option.fileChangeLog) fileLog('remove', filePath);
 				delete this.filesHash[newPath];
@@ -168,6 +192,14 @@ export default class MetaPlugin {
 			if (soundsExt.includes(extname)) {
 				newPath = newPath.replace(extname, Ext.wav);
 				if (this.soundsFiles.includes(newPath)) return;
+				await removeFile(filePath);
+				if (this.option.fileChangeLog) fileLog('remove', filePath);
+				delete this.filesHash[newPath];
+			}
+			if (animationsExt.includes(extname)) {
+				newPath = newPath.replace(extname, Ext.gif);
+				if (this.animationsFiles.includes(newPath)) return;
+				if (this.imagesFiles.includes(newPath.replace(Ext.gif, Ext.png))) return;
 				await removeFile(filePath);
 				if (this.option.fileChangeLog) fileLog('remove', filePath);
 				delete this.filesHash[newPath];
@@ -182,6 +214,7 @@ export default class MetaPlugin {
 		await this.checkFiles();
 		await this.imagesConversionProcess();
 		await this.soundsConversionProcess();
+		await this.animationConversionProcess();
 		await this.writeHashConfig();
 	}
 
@@ -208,6 +241,17 @@ export default class MetaPlugin {
 			]);
 		});
 		await Promise.all(soundJobs);
+		const animationJobs = this.animationsFiles.map(async (filePath) => {
+			const ext = path.extname(filePath);
+			const newPath = replaceRoot(filePath, this.option.storageDir);
+			await removeFile(filePath);
+			await Promise.all([
+				transferFile(newPath.replace(ext, Ext.gif), filePath.replace(ext, Ext.gif)),
+				transferFile(newPath.replace(ext, Ext.webp), filePath.replace(ext, Ext.webp)),
+				transferFile(newPath.replace(ext, Ext.avif), filePath.replace(ext, Ext.avif)),
+			]);
+		});
+		await Promise.all(animationJobs);
 	}
 
 	public async removeConfig(): Promise<void> {
@@ -215,5 +259,6 @@ export default class MetaPlugin {
 		await removeFile(this.configPath);
 		this.imagesFiles = new Array<string>();
 		this.soundsFiles = new Array<string>();
+		this.animationsFiles = new Array<string>();
 	}
 }
