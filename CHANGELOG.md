@@ -1,5 +1,11 @@
 # @releaseband/vite-plugin-meta
 
+## 0.3.0
+
+### Minor Changes
+
+- [#51](https://github.com/releaseband/vite-plugin-meta/pull/51) [`d25dbc0`](https://github.com/releaseband/vite-plugin-meta/commit/d25dbc0f5daa82b09d15dd3f2ba5a357c2789bcc) Thanks [@ksv90](https://github.com/ksv90)! - video convert added
+
 ## 0.2.0
 
 ### Minor Changes
