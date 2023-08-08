@@ -1,5 +1,11 @@
 # @releaseband/vite-plugin-meta
 
+## 0.3.2
+
+### Patch Changes
+
+- [#55](https://github.com/releaseband/vite-plugin-meta/pull/55) [`0a0c07a`](https://github.com/releaseband/vite-plugin-meta/commit/0a0c07afce3c05a17028586acdd1b33b698d424a) Thanks [@ksv90](https://github.com/ksv90)! - video path bud fixed
+
 ## 0.3.1
 
 ### Patch Changes
