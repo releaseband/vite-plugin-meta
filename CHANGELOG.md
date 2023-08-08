@@ -1,5 +1,11 @@
 # @releaseband/vite-plugin-meta
 
+## 0.3.3
+
+### Patch Changes
+
+- [#57](https://github.com/releaseband/vite-plugin-meta/pull/57) [`d55c0bf`](https://github.com/releaseband/vite-plugin-meta/commit/d55c0bfec99fd55cffa929aa08aeeee85da95195) Thanks [@ksv90](https://github.com/ksv90)! - video ext bug fixed
+
 ## 0.3.2
 
 ### Patch Changes
