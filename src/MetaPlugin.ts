@@ -25,7 +25,7 @@ const formats = {
 	'.ogg': `${basicSoundSettings} -acodec libvorbis -f ogg -aq 2`,
 	'.m4a': `${basicSoundSettings} -ab 96k -strict -2`,
 	'.mp4': `${basicVideoSettings} -c:a aac -c:v libx264 -crf 24 -preset veryslow -profile:v main`,
-	'.av1': `${basicVideoSettings} -c:a libopus -c:v libaom-av1 -crf 34 -b:v 0 --enable-libopus`,
+	'.av1': `${basicVideoSettings} -c:a libopus -c:v libaom-av1 -crf 34 -b:v 0`,
 };
 
 export default class MetaPlugin {
