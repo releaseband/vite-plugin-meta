@@ -14,7 +14,7 @@ import {
 	writeConfig,
 	convertVideo,
 } from './processes';
-import { Ext, MetaPluginOption, Names } from './types';
+import { Ext, MetaPluginOption, Names, VideoCodecs } from './types';
 import { createSoundsConfig, createTexturesConfig, createVideoConfig, getBasePath, replaceRoot } from './helpers';
 import { fileLog } from './utils';
 
@@ -229,7 +229,7 @@ export default class MetaPlugin {
 				delete this.filesHash[newPath];
 			}
 			if (videosExt.includes(extname)) {
-				newPath = newPath.replace(extname, Ext.mp4);
+				newPath = newPath.replace(`.${VideoCodecs.av1}`, '');
 				if (this.videoFiles.includes(newPath)) return;
 				await removeFile(filePath);
 				if (this.option.fileChangeLog) fileLog('remove', filePath);
