@@ -1,5 +1,11 @@
 # @releaseband/vite-plugin-meta
 
+## 0.3.1
+
+### Patch Changes
+
+- [#53](https://github.com/releaseband/vite-plugin-meta/pull/53) [`e982ba8`](https://github.com/releaseband/vite-plugin-meta/commit/e982ba8145ea5c7c707f3ae616a566456f8f6279) Thanks [@ksv90](https://github.com/ksv90)! - flag libopus fixed
+
 ## 0.3.0
 
 ### Minor Changes
