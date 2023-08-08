@@ -1,6 +1,6 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import ffmpegStatic from 'ffmpeg-static';
-import { spawn } from 'node:child_process';
+import { exec } from 'node:child_process';
 import { createReadStream, createWriteStream, readdirSync, statSync, existsSync, mkdirSync } from 'node:fs';
 import { unlink, writeFile, readFile, copyFile } from 'node:fs/promises';
 import { extname, join, sep, dirname } from 'node:path';
@@ -31,7 +31,12 @@ export function getFilesPaths(inputPath: string): ReadonlyArray<string> {
 export function ffmpeg(...params: ReadonlyArray<string>): Promise<void> {
 	return new Promise((resolve, reject) => {
 		if (!ffmpegStatic) throw new Error('ffmpeg not found');
-		spawn(ffmpegStatic, params).on('error', reject).on('exit', resolve);
+		exec(`${ffmpegStatic} ${params.join(' ')}`)
+			.on('error', reject)
+			.on('exit', (code) => {
+				if (code === 0) resolve();
+				else reject(new Error(`ffmpeg exit with code ${code}`));
+			});
 	});
 }
 
@@ -126,7 +131,7 @@ export async function convertAnimation(animationPath: string, storageDir: string
 
 export async function convertSound(
 	soundPath: string,
-	formatsOptions: Record<Extract<Ext, Ext.mp3 | Ext.ogg | Ext.m4a>, ReadonlyArray<string>>,
+	formatsOptions: Record<Extract<Ext, Ext.mp3 | Ext.ogg | Ext.m4a>, string>,
 	storageDir: string
 ): Promise<void> {
 	const ext = extname(soundPath);
@@ -134,12 +139,30 @@ export async function convertSound(
 	checkDir(dirname(newPath));
 	try {
 		await Promise.all([
-			ffmpeg('-i', soundPath, ...formatsOptions[Ext.mp3], newPath.replace(ext, Ext.mp3)),
-			ffmpeg('-i', soundPath, ...formatsOptions[Ext.ogg], newPath.replace(ext, Ext.ogg)),
-			ffmpeg('-i', soundPath, ...formatsOptions[Ext.m4a], newPath.replace(ext, Ext.m4a)),
+			ffmpeg('-i', soundPath, formatsOptions[Ext.mp3], newPath.replace(ext, Ext.mp3)),
+			ffmpeg('-i', soundPath, formatsOptions[Ext.ogg], newPath.replace(ext, Ext.ogg)),
+			ffmpeg('-i', soundPath, formatsOptions[Ext.m4a], newPath.replace(ext, Ext.m4a)),
 		]);
 	} catch (err) {
-		throw new Error(`${convertSound} ${soundPath} file error:\n${String(err)}`);
+		throw new Error(`${convertSound.name} ${soundPath} file error:\n${String(err)}`);
+	}
+}
+
+export async function convertVideo(
+	videoPath: string,
+	formatsOptions: Record<Extract<Ext, Ext.mp4 | Ext.av1>, string>,
+	storageDir: string
+): Promise<void> {
+	const ext = extname(videoPath);
+	const newPath = replaceRoot(videoPath, storageDir, sep);
+	checkDir(dirname(newPath));
+	try {
+		await Promise.all([
+			ffmpeg('-i', videoPath, formatsOptions[Ext.mp4], newPath.replace(ext, Ext.mp4)),
+			ffmpeg('-i', videoPath, formatsOptions[Ext.av1], newPath.replace(ext, `.av1${Ext.mp4}`)),
+		]);
+	} catch (err) {
+		throw new Error(`${convertVideo.name} ${videoPath} file error:\n${String(err)}`);
 	}
 }
 

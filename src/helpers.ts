@@ -1,4 +1,4 @@
-import { Ext, SoundsConfig, TexturesConfig, TrackDuration } from './types';
+import { Ext, SoundsConfig, TexturesConfig, TrackDuration, VideoCodecs, VideoConfig } from './types';
 
 export function waitConvert<TStream extends { on: (event: string, fn: (...arg: any[]) => void) => TStream }>(
 	stream: TStream
@@ -12,6 +12,10 @@ export function createTexturesConfig(prod: boolean): TexturesConfig {
 
 export function createSoundsConfig(prod: boolean, trackDuration: TrackDuration): SoundsConfig {
 	return { formats: prod ? [Ext.m4a, Ext.mp3, Ext.ogg] : [Ext.wav], trackDuration };
+}
+
+export function createVideoConfig(prod: boolean): VideoConfig {
+	return { codecs: prod ? [VideoCodecs.h264, VideoCodecs.av1] : [VideoCodecs.h264] };
 }
 
 export function getBasePath(fullPath: string, sep: string): string {
