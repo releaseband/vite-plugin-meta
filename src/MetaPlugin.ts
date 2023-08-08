@@ -288,7 +288,11 @@ export default class MetaPlugin {
 			const ext = path.extname(filePath);
 			const newPath = replaceRoot(filePath, this.option.storageDir, path.sep);
 			await removeFile(filePath);
-			await transferFile(newPath.replace(ext, Ext.mp4), filePath.replace(ext, Ext.mp4));
+			const videoExt = `.${VideoCodecs.av1}${Ext.mp4}`;
+			await Promise.all([
+				transferFile(newPath.replace(ext, Ext.mp4), filePath.replace(ext, Ext.mp4)),
+				transferFile(newPath.replace(ext, videoExt), filePath.replace(ext, videoExt)),
+			]);
 		});
 		await Promise.all(videoJobs);
 	}
