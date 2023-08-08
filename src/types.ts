@@ -16,21 +16,30 @@ export const enum Ext {
 	jpg = '.jpg',
 	jpeg = '.jpeg',
 	wav = '.wav',
+	mp4 = '.mp4',
+	av1 = '.av1',
 }
 
-export type TextureFormats = ReadonlyArray<string>;
+export const enum VideoCodecs {
+	h264 = 'h264',
+	av1 = 'av1',
+}
 
-export type SoundFormats = ReadonlyArray<string>;
+export type FileFormats = ReadonlyArray<string>;
 
 export type TrackDuration = Readonly<Record<string, number>>;
 
 export type TexturesConfig = {
-	readonly formats: TextureFormats;
+	readonly formats: FileFormats;
 };
 
 export type SoundsConfig = {
-	readonly formats: SoundFormats;
+	readonly formats: FileFormats;
 	readonly trackDuration: TrackDuration;
+};
+
+export type VideoConfig = {
+	readonly codecs: ReadonlyArray<string>;
 };
 
 export type MetaConfig = {
@@ -38,6 +47,7 @@ export type MetaConfig = {
 	readonly gameVersion: string;
 	readonly textures: TexturesConfig;
 	readonly sounds: SoundsConfig;
+	readonly video: VideoConfig;
 };
 
 export type MetaPluginOption = {
