@@ -61,4 +61,5 @@ export type MetaPluginOption = {
 	readonly optionLog?: boolean;
 	readonly publicLog?: boolean;
 	readonly fileChangeLog?: boolean;
+	readonly exclude: ReadonlyArray<string>;
 };

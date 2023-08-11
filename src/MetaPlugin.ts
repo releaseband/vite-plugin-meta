@@ -59,7 +59,9 @@ export default class MetaPlugin {
 			optionLog: option.optionLog,
 			publicLog: option.publicLog,
 			fileChangeLog: option.fileChangeLog,
+			exclude: option.exclude ?? [],
 		};
+
 		if (option.optionLog) console.log(this.option);
 	}
 
@@ -71,17 +73,23 @@ export default class MetaPlugin {
 		const videoExt: ReadonlyArray<string> = [Ext.mp4];
 
 		if (this.option.publicLog) console.log(publicDir);
-		[this.imagesFiles, this.soundsFiles, this.animationsFiles, this.videoFiles] = getFilesPaths(publicDir).reduce(
-			([imagesFiles, soundsFiles, animationsFiles, videoFiles], file) => {
-				const extname = path.extname(file).toLowerCase();
-				if (imagesExt.includes(extname)) imagesFiles.push(file);
-				else if (soundsExt.includes(extname)) soundsFiles.push(file);
-				else if (animationsExt.includes(extname)) animationsFiles.push(file);
-				else if (videoExt.includes(extname)) videoFiles.push(file);
-				return [imagesFiles, soundsFiles, animationsFiles, videoFiles];
-			},
-			[new Array<string>(), new Array<string>(), new Array<string>(), new Array<string>()]
-		);
+		[this.imagesFiles, this.soundsFiles, this.animationsFiles, this.videoFiles] = getFilesPaths(publicDir)
+			.filter((filePath) => {
+				const newPath = filePath.replace(`${publicDir}${path.sep}`, '');
+				return !this.option.exclude.find((file) => newPath === file);
+			})
+			.reduce(
+				([imagesFiles, soundsFiles, animationsFiles, videoFiles], file) => {
+					const extname = path.extname(file).toLowerCase();
+					if (imagesExt.includes(extname)) imagesFiles.push(file);
+					else if (soundsExt.includes(extname)) soundsFiles.push(file);
+					else if (animationsExt.includes(extname)) animationsFiles.push(file);
+					else if (videoExt.includes(extname)) videoFiles.push(file);
+					return [imagesFiles, soundsFiles, animationsFiles, videoFiles];
+				},
+				[new Array<string>(), new Array<string>(), new Array<string>(), new Array<string>()]
+			);
+
 		if (this.option.selectFilesLog) {
 			console.log(this.imagesFiles, this.soundsFiles, this.animationsFiles, this.videoFiles);
 		}
@@ -114,6 +122,7 @@ export default class MetaPlugin {
 				const fileHash = await makeHash(imagePath);
 				if (this.option.converLog) console.log(imagePath, this.filesHash[imagePath], fileHash);
 				if (this.filesHash[imagePath] === fileHash) return;
+				if (this.option.fileChangeLog) fileLog(`file conversion "${imagePath}" started`);
 				await convertImage(imagePath, this.option.storageDir);
 				if (this.option.fileChangeLog) fileLog('add', imagePath);
 				this.filesHash[imagePath] = fileHash;
@@ -130,6 +139,7 @@ export default class MetaPlugin {
 				const fileHash = await makeHash(soundPath);
 				if (this.option.converLog) console.log(soundPath, this.filesHash[soundPath], fileHash);
 				if (this.filesHash[soundPath] === fileHash) return;
+				if (this.option.fileChangeLog) fileLog(`file conversion "${soundPath}" started`);
 				await convertSound(soundPath, formats, this.option.storageDir);
 				if (this.option.fileChangeLog) fileLog('add', soundPath);
 				this.filesHash[soundPath] = fileHash;
@@ -147,6 +157,7 @@ export default class MetaPlugin {
 				const fileHash = await makeHash(animationPath);
 				if (this.option.converLog) console.log(animationPath, this.filesHash[animationPath], fileHash);
 				if (this.filesHash[animationPath] === fileHash) return;
+				if (this.option.fileChangeLog) fileLog(`file conversion "${animationPath}" started`);
 				if (nb_frames && +nb_frames > 50) {
 					console.warn(`image "${animationPath}" contains ${nb_frames} frames`);
 				}
@@ -166,6 +177,7 @@ export default class MetaPlugin {
 				const fileHash = await makeHash(videoPath);
 				if (this.option.converLog) console.log(videoPath, this.filesHash[videoPath], fileHash);
 				if (this.filesHash[videoPath] === fileHash) return;
+				if (this.option.fileChangeLog) fileLog(`file conversion "${videoPath}" started`);
 				await convertVideo(videoPath, formats, this.option.storageDir);
 				if (this.option.fileChangeLog) fileLog('add', videoPath);
 				this.filesHash[videoPath] = fileHash;

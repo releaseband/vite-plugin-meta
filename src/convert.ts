@@ -12,6 +12,7 @@ const enum Flags {
 	optionLog = '--optionLog',
 	publicLog = '--publicLog',
 	fileChangeLog = '--fileChangeLog',
+	exclude = '--exclude',
 }
 
 export const getParameter = (key: string): string | null => {
@@ -34,6 +35,9 @@ const plugin = new MetaPlugin({
 	optionLog: checkParameter(Flags.optionLog),
 	publicLog: checkParameter(Flags.publicLog),
 	fileChangeLog: checkParameter(Flags.fileChangeLog),
+	exclude: getParameter(Flags.exclude)
+		?.split(',')
+		.map((file) => file.trim()),
 });
 
 const publicDir = getParameter(Flags.publicDir) ?? Names.publicDir;
