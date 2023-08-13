@@ -10,7 +10,7 @@ import sharp from 'sharp';
 import { createHash } from 'node:crypto';
 
 import { replaceRoot, waitConvert } from './helpers';
-import { Ext } from './types';
+import { Ext, VideoCodecs } from './types';
 
 export function getFilesPaths(inputPath: string): ReadonlyArray<string> {
 	if (!existsSync(inputPath)) return [];
@@ -159,7 +159,7 @@ export async function convertVideo(
 	try {
 		await Promise.all([
 			ffmpeg('-i', videoPath, formatsOptions[Ext.mp4], newPath.replace(ext, Ext.mp4)),
-			ffmpeg('-i', videoPath, formatsOptions[Ext.av1], newPath.replace(ext, `.av1${Ext.mp4}`)),
+			ffmpeg('-i', videoPath, formatsOptions[Ext.av1], newPath.replace(ext, `.${VideoCodecs.av1}${Ext.mp4}`)),
 		]);
 	} catch (err) {
 		throw new Error(`${convertVideo.name} ${videoPath} file error:\n${String(err)}`);

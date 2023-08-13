@@ -57,8 +57,9 @@ export type MetaPluginOption = {
 	readonly storageDir: string;
 	readonly selectFilesLog?: boolean;
 	readonly filesHashLog?: boolean;
-	readonly converLog?: boolean;
+	readonly convertLog?: boolean;
 	readonly optionLog?: boolean;
 	readonly publicLog?: boolean;
 	readonly fileChangeLog?: boolean;
+	readonly exclude: ReadonlyArray<string>;
 };

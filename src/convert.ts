@@ -8,10 +8,11 @@ const enum Flags {
 	configName = '--config',
 	selectFilesLog = '--selectFilesLog',
 	filesHashLog = '--filesHashLog',
-	converLog = '--converLog',
+	convertLog = '--convertLog',
 	optionLog = '--optionLog',
 	publicLog = '--publicLog',
 	fileChangeLog = '--fileChangeLog',
+	exclude = '--exclude',
 }
 
 export const getParameter = (key: string): string | null => {
@@ -30,10 +31,13 @@ const plugin = new MetaPlugin({
 	hashConfigName: getParameter(Flags.configName) ?? Names.hashConfigName,
 	selectFilesLog: checkParameter(Flags.selectFilesLog),
 	filesHashLog: checkParameter(Flags.filesHashLog),
-	converLog: checkParameter(Flags.converLog),
+	convertLog: checkParameter(Flags.convertLog),
 	optionLog: checkParameter(Flags.optionLog),
 	publicLog: checkParameter(Flags.publicLog),
 	fileChangeLog: checkParameter(Flags.fileChangeLog),
+	exclude: getParameter(Flags.exclude)
+		?.split(',')
+		.map((file) => file.trim()),
 });
 
 const publicDir = getParameter(Flags.publicDir) ?? Names.publicDir;
