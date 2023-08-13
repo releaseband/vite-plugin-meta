@@ -55,11 +55,11 @@ export default class MetaPlugin {
 			storageDir: option.storageDir ?? Names.storageDir,
 			selectFilesLog: option.selectFilesLog,
 			filesHashLog: option.filesHashLog,
-			converLog: option.converLog,
+			convertLog: option.convertLog,
 			optionLog: option.optionLog,
 			publicLog: option.publicLog,
 			fileChangeLog: option.fileChangeLog,
-			exclude: option.exclude ?? [],
+			exclude: option.exclude?.map((filePath) => filePath.replaceAll('/', path.sep)) ?? [],
 		};
 
 		if (option.optionLog) console.log(this.option);
@@ -67,35 +67,37 @@ export default class MetaPlugin {
 
 	public selectFiles(publicDir: string): void {
 		this.publicDir = publicDir;
+		const { exclude, publicLog } = this.option;
 		const imagesExt: ReadonlyArray<string> = [Ext.png, Ext.jpg, Ext.jpeg];
 		const soundsExt: ReadonlyArray<string> = [Ext.wav];
 		const animationsExt: ReadonlyArray<string> = [Ext.gif];
 		const videoExt: ReadonlyArray<string> = [Ext.mp4];
 
-		if (this.option.publicLog) console.log(publicDir);
-		[this.imagesFiles, this.soundsFiles, this.animationsFiles, this.videoFiles] = getFilesPaths(publicDir)
-			.filter((filePath) => {
-				const newPath = filePath.replace(`${publicDir}${path.sep}`, '');
-				return !this.option.exclude.find((file) => newPath === file);
-			})
-			.reduce(
-				([imagesFiles, soundsFiles, animationsFiles, videoFiles], file) => {
+		if (publicLog) console.log(publicDir);
+		const resultFiles = getFilesPaths(publicDir).reduce(
+			([imagesFiles, soundsFiles, animationsFiles, videoFiles], file) => {
+				const filePath = file.replace(`${publicDir}${path.sep}`, '');
+				const excludedFile = exclude.some((excludedPath) => filePath === excludedPath);
+				if (!excludedFile) {
 					const extname = path.extname(file).toLowerCase();
 					if (imagesExt.includes(extname)) imagesFiles.push(file);
 					else if (soundsExt.includes(extname)) soundsFiles.push(file);
 					else if (animationsExt.includes(extname)) animationsFiles.push(file);
 					else if (videoExt.includes(extname)) videoFiles.push(file);
-					return [imagesFiles, soundsFiles, animationsFiles, videoFiles];
-				},
-				[new Array<string>(), new Array<string>(), new Array<string>(), new Array<string>()]
-			);
+				}
+				return [imagesFiles, soundsFiles, animationsFiles, videoFiles];
+			},
+			[new Array<string>(), new Array<string>(), new Array<string>(), new Array<string>()]
+		);
+
+		[this.imagesFiles, this.soundsFiles, this.animationsFiles, this.videoFiles] = resultFiles;
 
 		if (this.option.selectFilesLog) {
 			console.log(this.imagesFiles, this.soundsFiles, this.animationsFiles, this.videoFiles);
 		}
 	}
 
-	private async loadHashs(): Promise<void> {
+	private async loadHashes(): Promise<void> {
 		checkDir(this.option.storageDir);
 		const hashConfig = await readConfig(path.join(this.option.storageDir, this.option.hashConfigName));
 		if (hashConfig) this.filesHash = hashConfig as Record<string, string>;
@@ -120,7 +122,7 @@ export default class MetaPlugin {
 		const jobs = this.imagesFiles.map(async (imagePath) => {
 			try {
 				const fileHash = await makeHash(imagePath);
-				if (this.option.converLog) console.log(imagePath, this.filesHash[imagePath], fileHash);
+				if (this.option.convertLog) console.log(imagePath, this.filesHash[imagePath], fileHash);
 				if (this.filesHash[imagePath] === fileHash) return;
 				if (this.option.fileChangeLog) fileLog(`file conversion "${imagePath}" started`);
 				await convertImage(imagePath, this.option.storageDir);
@@ -137,7 +139,7 @@ export default class MetaPlugin {
 		const jobs = this.soundsFiles.map(async (soundPath) => {
 			try {
 				const fileHash = await makeHash(soundPath);
-				if (this.option.converLog) console.log(soundPath, this.filesHash[soundPath], fileHash);
+				if (this.option.convertLog) console.log(soundPath, this.filesHash[soundPath], fileHash);
 				if (this.filesHash[soundPath] === fileHash) return;
 				if (this.option.fileChangeLog) fileLog(`file conversion "${soundPath}" started`);
 				await convertSound(soundPath, formats, this.option.storageDir);
@@ -155,7 +157,7 @@ export default class MetaPlugin {
 			try {
 				const { nb_frames } = await getFileInfo(animationPath);
 				const fileHash = await makeHash(animationPath);
-				if (this.option.converLog) console.log(animationPath, this.filesHash[animationPath], fileHash);
+				if (this.option.convertLog) console.log(animationPath, this.filesHash[animationPath], fileHash);
 				if (this.filesHash[animationPath] === fileHash) return;
 				if (this.option.fileChangeLog) fileLog(`file conversion "${animationPath}" started`);
 				if (nb_frames && +nb_frames > 50) {
@@ -175,7 +177,7 @@ export default class MetaPlugin {
 		const jobs = this.videoFiles.map(async (videoPath) => {
 			try {
 				const fileHash = await makeHash(videoPath);
-				if (this.option.converLog) console.log(videoPath, this.filesHash[videoPath], fileHash);
+				if (this.option.convertLog) console.log(videoPath, this.filesHash[videoPath], fileHash);
 				if (this.filesHash[videoPath] === fileHash) return;
 				if (this.option.fileChangeLog) fileLog(`file conversion "${videoPath}" started`);
 				await convertVideo(videoPath, formats, this.option.storageDir);
@@ -253,7 +255,7 @@ export default class MetaPlugin {
 
 	public async convertProcess(publicDir: string): Promise<void> {
 		this.selectFiles(publicDir);
-		await this.loadHashs();
+		await this.loadHashes();
 		await this.checkFiles();
 		await this.imagesConversionProcess();
 		await this.soundsConversionProcess();
