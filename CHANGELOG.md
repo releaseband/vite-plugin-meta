@@ -1,5 +1,11 @@
 # @releaseband/vite-plugin-meta
 
+## 0.3.5
+
+### Patch Changes
+
+- [#61](https://github.com/releaseband/vite-plugin-meta/pull/61) [`624789c`](https://github.com/releaseband/vite-plugin-meta/commit/624789ce28b8648ce41597532593cb65049d1e63) Thanks [@neymanushka](https://github.com/neymanushka)! - update sharp vite and ts modules
+
 ## 0.3.4
 
 ### Patch Changes
