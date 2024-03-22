@@ -59,6 +59,7 @@ export default class MetaPlugin {
 			optionLog: option.optionLog,
 			publicLog: option.publicLog,
 			fileChangeLog: option.fileChangeLog,
+			losslessImages: option.losslessImages,
 			exclude: option.exclude?.map((filePath) => filePath.replaceAll('/', path.sep)) ?? [],
 		};
 
@@ -119,13 +120,16 @@ export default class MetaPlugin {
 	}
 
 	private async imagesConversionProcess(): Promise<void> {
+		const patterns = this.option.losslessImages?.map((folderPath) => new RegExp(folderPath)) ?? [];
 		const jobs = this.imagesFiles.map(async (imagePath) => {
 			try {
 				const fileHash = await makeHash(imagePath);
+				const forwardSepImagePath = imagePath.replace(/\\/g, '/');
 				if (this.option.convertLog) console.log(imagePath, this.filesHash[imagePath], fileHash);
 				if (this.filesHash[imagePath] === fileHash) return;
 				if (this.option.fileChangeLog) fileLog(`file conversion "${imagePath}" started`);
-				await convertImage(imagePath, this.option.storageDir);
+				const isLossLess = patterns.some((pattern) => pattern.test(forwardSepImagePath));
+				await convertImage(imagePath, this.option.storageDir, isLossLess);
 				if (this.option.fileChangeLog) fileLog('add', imagePath);
 				this.filesHash[imagePath] = fileHash;
 			} catch (err) {

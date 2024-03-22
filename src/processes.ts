@@ -93,14 +93,14 @@ export async function transferFile(fromFilePath: string, toFilePath: string): Pr
 	}
 }
 
-export async function convertImage(imagePath: string, storageDir: string): Promise<void> {
+export async function convertImage(imagePath: string, storageDir: string, isLossLess = false): Promise<void> {
 	const ext = extname(imagePath);
 	const newPath = replaceRoot(imagePath, storageDir, sep);
 	checkDir(dirname(newPath));
 	const factory = sharp();
-	const avif = factory.clone().avif();
-	const webp = factory.clone().webp();
-	const png = factory.clone().png({ palette: true, compressionLevel: 9 });
+	const avif = factory.clone().avif({ lossless: isLossLess });
+	const webp = factory.clone().webp({ lossless: isLossLess });
+	const png = factory.clone().png({ palette: true, compressionLevel: isLossLess ? 0 : 9 });
 	const jobs = [waitConvert(avif), waitConvert(webp), waitConvert(png)];
 	avif.pipe(createWriteStream(newPath.replace(ext, Ext.avif)));
 	webp.pipe(createWriteStream(newPath.replace(ext, Ext.webp)));
