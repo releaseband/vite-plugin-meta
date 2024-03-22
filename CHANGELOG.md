@@ -1,5 +1,11 @@
 # @releaseband/vite-plugin-meta
 
+## 0.4.0
+
+### Minor Changes
+
+- [#64](https://github.com/releaseband/vite-plugin-meta/pull/64) [`2a55101`](https://github.com/releaseband/vite-plugin-meta/commit/2a55101d251ff64cbe267e09529c8de76f46323f) Thanks [@neymanushka](https://github.com/neymanushka)! - lossless images option added
+
 ## 0.3.5
 
 ### Patch Changes
