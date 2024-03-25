@@ -13,6 +13,7 @@ const enum Flags {
 	publicLog = '--publicLog',
 	fileChangeLog = '--fileChangeLog',
 	exclude = '--exclude',
+	losslessImages = '--losslessImages',
 }
 
 export const getParameter = (key: string): string | null => {
@@ -35,6 +36,9 @@ const plugin = new MetaPlugin({
 	optionLog: checkParameter(Flags.optionLog),
 	publicLog: checkParameter(Flags.publicLog),
 	fileChangeLog: checkParameter(Flags.fileChangeLog),
+	losslessImages: getParameter(Flags.losslessImages)
+		?.split(',')
+		.map((path) => path.trim()),
 	exclude: getParameter(Flags.exclude)
 		?.split(',')
 		.map((file) => file.trim()),
