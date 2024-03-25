@@ -1,5 +1,11 @@
 # @releaseband/vite-plugin-meta
 
+## 0.4.1
+
+### Patch Changes
+
+- [#66](https://github.com/releaseband/vite-plugin-meta/pull/66) [`7efa39c`](https://github.com/releaseband/vite-plugin-meta/commit/7efa39c31c50997ad056b95611ef957aa02b3828) Thanks [@neymanushka](https://github.com/neymanushka)! - lossless images as command line arg
+
 ## 0.4.0
 
 ### Minor Changes
