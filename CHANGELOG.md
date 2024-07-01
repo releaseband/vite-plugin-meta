@@ -1,5 +1,11 @@
 # @releaseband/vite-plugin-meta
 
+## 0.4.2
+
+### Patch Changes
+
+- [#68](https://github.com/releaseband/vite-plugin-meta/pull/68) [`f6102e2`](https://github.com/releaseband/vite-plugin-meta/commit/f6102e216815790c79e4bd2f4a227738ea1e40c3) Thanks [@neymanushka](https://github.com/neymanushka)! - conversion speedup, animation size limit warn added
+
 ## 0.4.1
 
 ### Patch Changes
