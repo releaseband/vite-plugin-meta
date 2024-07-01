@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { stat } from 'node:fs/promises';
 import {
 	checkDir,
 	convertImage,
@@ -14,7 +15,7 @@ import {
 	writeConfig,
 	convertVideo,
 } from './processes';
-import { Ext, MetaPluginOption, Names, VideoCodecs } from './types';
+import { Ext, MAX_ANIMATION_SIZE, MetaPluginOption, Names, VideoCodecs } from './types';
 import { createSoundsConfig, createTexturesConfig, createVideoConfig, getBasePath, replaceRoot } from './helpers';
 import { fileLog } from './utils';
 
@@ -161,6 +162,10 @@ export default class MetaPlugin {
 			try {
 				const { nb_frames } = await getFileInfo(animationPath);
 				const fileHash = await makeHash(animationPath);
+				const stats = await stat(animationPath);
+				if (stats.size > MAX_ANIMATION_SIZE) {
+					console.warn(`animation ${animationPath} exceeds size limit ${stats.size} > ${MAX_ANIMATION_SIZE}`);
+				}
 				if (this.option.convertLog) console.log(animationPath, this.filesHash[animationPath], fileHash);
 				if (this.filesHash[animationPath] === fileHash) return;
 				if (this.option.fileChangeLog) fileLog(`file conversion "${animationPath}" started`);
