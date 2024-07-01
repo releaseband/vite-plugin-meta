@@ -121,8 +121,8 @@ export async function convertAnimation(animationPath: string, storageDir: string
 	try {
 		await Promise.all([
 			copyFile(animationPath, newPath),
-			ffmpeg('-i', animationPath, '-y', '-loop', '0', newPath.replace(ext, Ext.webp)),
-			ffmpeg('-i', animationPath, '-y', '-c:v', 'libaom-av1', newPath.replace(ext, Ext.avif)),
+			ffmpeg('-i', animationPath, '-y', '-loop', '0', '-cpu-used 8', newPath.replace(ext, Ext.webp)),
+			ffmpeg('-i', animationPath, '-y', '-c:v', 'libaom-av1', '-cpu-used 8', newPath.replace(ext, Ext.avif)),
 		]);
 	} catch (err) {
 		throw new Error(`${convertAnimation.name} ${animationPath} file error:\n${String(err)}`);

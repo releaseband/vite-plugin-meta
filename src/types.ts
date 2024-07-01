@@ -1,3 +1,5 @@
+export const MAX_ANIMATION_SIZE = 10_000_000;
+
 export const enum Names {
 	metaConfigName = 'meta.json',
 	hashConfigName = 'files-hash.json',
