@@ -36,11 +36,12 @@ const metaPlugin = (pluginConfig: MetaPluginConfig = {}): PluginOption => {
 	return {
 		name: 'vite-plugin-meta',
 		configResolved(viteConfig) {
+			const sep = viteConfig.publicDir.includes(path.win32.sep) ? path.win32.sep : path.posix.sep;
 			config = {
 				command: viteConfig.command,
 				logger: viteConfig.logger,
 				outDir: viteConfig.build.outDir,
-				publicDir: viteConfig.publicDir.split(path.sep).at(-1) ?? '',
+				publicDir: viteConfig.publicDir.split(sep).at(-1) ?? '',
 			};
 		},
 		async buildStart() {

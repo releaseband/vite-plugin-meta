@@ -50,10 +50,10 @@
         "@releaseband/commitlint-config": "^1.0.4",
         "tsup": "^6.7.0",
         "typescript": "^5.2.2",
-        "vite": "^4.5.2"
+        "vite": "^5.4.8"
     },
     "peerDependencies": {
-        "vite": "^4.5.2"
+        "vite": "^5.4.8"
     },
     "peerDependenciesMeta": {
         "vite": {
