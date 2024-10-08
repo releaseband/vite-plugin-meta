@@ -1,5 +1,15 @@
 # @releaseband/vite-plugin-meta
 
+## 0.5.0
+
+### Minor Changes
+
+- [#70](https://github.com/releaseband/vite-plugin-meta/pull/70) [`314a6d4`](https://github.com/releaseband/vite-plugin-meta/commit/314a6d47a3f470f933df6e2a279ddec444f9b3cc) Thanks [@mikhailgilev](https://github.com/mikhailgilev)! - update vite, fix windows path error
+
+### Patch Changes
+
+- [#71](https://github.com/releaseband/vite-plugin-meta/pull/71) [`d85d38f`](https://github.com/releaseband/vite-plugin-meta/commit/d85d38fad8bc4b9d7f4b8d1b6907bd91f4f305a8) Thanks [@mikhailgilev](https://github.com/mikhailgilev)! - update pnpm install action version
+
 ## 0.4.2
 
 ### Patch Changes
