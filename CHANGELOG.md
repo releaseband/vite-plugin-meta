@@ -1,5 +1,11 @@
 # @releaseband/vite-plugin-meta
 
+## 0.5.1
+
+### Patch Changes
+
+- [#73](https://github.com/releaseband/vite-plugin-meta/pull/73) [`a9e206d`](https://github.com/releaseband/vite-plugin-meta/commit/a9e206dcc77e1e7079768cd6a8cc5416af82e3a0) Thanks [@neymanushka](https://github.com/neymanushka)! - deps update
+
 ## 0.5.0
 
 ### Minor Changes
