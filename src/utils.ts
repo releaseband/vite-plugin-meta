@@ -17,7 +17,7 @@ export function redText(str: string): string {
 	return colors.red(str);
 }
 
-export function fileLog(...args: unknown[]) {
+export function fileLog(...args: unknown[]): void {
 	// eslint-disable-next-line no-console
 	console.log('\t - ', ...args);
 }
