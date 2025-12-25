@@ -1,0 +1,17 @@
+name: Publish
+on:
+  release:
+    types: [published]
+
+env:
+  GITHUB_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  NPM_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/install
+      - run: pnpm build
+      - run: pnpm publish --no-git-checks --access public

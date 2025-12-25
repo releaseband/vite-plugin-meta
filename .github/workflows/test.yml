@@ -1,0 +1,19 @@
+name: Test
+
+on:
+  pull_request:
+    branches:
+      - main
+      - 'release/**'
+
+jobs:
+  test:
+    if: startsWith(github.head_ref, 'release-please--')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/install
+      - run: pnpm build
+      - run: pnpm lint
+      - run: pnpm type-check
+      - run: pnpm test

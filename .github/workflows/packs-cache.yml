@@ -1,0 +1,17 @@
+name: Packs cache update
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'main'
+      - 'release/**'
+    paths:
+      - 'pnpm-lock.yaml'
+
+jobs:
+  create-cache:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/install
