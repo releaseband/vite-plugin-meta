@@ -1,5 +1,42 @@
 # @releaseband/vite-plugin-meta
 
+## 0.0.1 (2025-12-25)
+
+
+### Features
+
+* lossless images option added ([90f0ae9](https://github.com/ksv90/vite-plugin-meta/commit/90f0ae90e97cc29687ae7ec47a8fb0c7e38cb1d0))
+* lossless images option added ([2ccf88f](https://github.com/ksv90/vite-plugin-meta/commit/2ccf88ff07fa54ac8db8447cfaeaa7020ab42f8e))
+* update vite, fix windows path error ([3fb5b0d](https://github.com/ksv90/vite-plugin-meta/commit/3fb5b0d016dab71bda5261667cf729bc353c497a))
+
+
+### Bug Fixes
+
+* actions removed ([cfb94c8](https://github.com/ksv90/vite-plugin-meta/commit/cfb94c81f38f4fab16492eb71cd25fd47f89a939))
+* actions removed ([45026f3](https://github.com/ksv90/vite-plugin-meta/commit/45026f31409ca6b1be743642f18629e5f43f9b3a))
+* changeset ([314a6d4](https://github.com/ksv90/vite-plugin-meta/commit/314a6d47a3f470f933df6e2a279ddec444f9b3cc))
+* changeset ([61f3b63](https://github.com/ksv90/vite-plugin-meta/commit/61f3b63acb80047db9d7ddbcab0cdd9fd839df2d))
+* changeset ([2a55101](https://github.com/ksv90/vite-plugin-meta/commit/2a55101d251ff64cbe267e09529c8de76f46323f))
+* conversion speedup, animation size limit warn added ([bf25e60](https://github.com/ksv90/vite-plugin-meta/commit/bf25e60fdc1a1b7f42b8eb43134f92b575085146))
+* conversion speedup, animation size limit warn added ([f6102e2](https://github.com/ksv90/vite-plugin-meta/commit/f6102e216815790c79e4bd2f4a227738ea1e40c3))
+* deps update ([25788e1](https://github.com/ksv90/vite-plugin-meta/commit/25788e15f1a782dfb29bc82e2cd4ba763acf22d4))
+* deps update ([a9e206d](https://github.com/ksv90/vite-plugin-meta/commit/a9e206dcc77e1e7079768cd6a8cc5416af82e3a0))
+* deps update ([62b66e0](https://github.com/ksv90/vite-plugin-meta/commit/62b66e09bb20849e0dec2aeb0652737becc0ba0f))
+* deps update ([624789c](https://github.com/ksv90/vite-plugin-meta/commit/624789ce28b8648ce41597532593cb65049d1e63))
+* lint added ([1ab3d3b](https://github.com/ksv90/vite-plugin-meta/commit/1ab3d3b00709cfa1b8cf08cc2d53a886d84339d8))
+* lossless images as command line arg support ([daab867](https://github.com/ksv90/vite-plugin-meta/commit/daab867b91a9312536a0d2fbf78909d7124815f5))
+* puplish actions ([dbc901e](https://github.com/ksv90/vite-plugin-meta/commit/dbc901e2fb15b4b9ca6af97e03e0b31f233bff95))
+* puplish actions ([53a8b22](https://github.com/ksv90/vite-plugin-meta/commit/53a8b22a52a8406dcdd6c5b438553f7cad2e2edd))
+* remove old name ([8cae7a0](https://github.com/ksv90/vite-plugin-meta/commit/8cae7a04fe56f5aafa41ba077de2d1609689455f))
+* type-check added ([0783ed6](https://github.com/ksv90/vite-plugin-meta/commit/0783ed6c99f938ee9647a9cb981ff4b7c075b97d))
+* update pnpm install action version ([17bd7c1](https://github.com/ksv90/vite-plugin-meta/commit/17bd7c1563f5a352cd2e0b95ca6ce151f41308d7))
+* update pnpm install action version ([d85d38f](https://github.com/ksv90/vite-plugin-meta/commit/d85d38fad8bc4b9d7f4b8d1b6907bd91f4f305a8))
+
+
+### Miscellaneous Chores
+
+* release 0.0.1 ([a9cca9b](https://github.com/ksv90/vite-plugin-meta/commit/a9cca9bd7930385d1ccac5604aca768f587ca93b))
+
 ## 0.5.1
 
 ### Patch Changes
