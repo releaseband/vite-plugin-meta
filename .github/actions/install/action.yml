@@ -1,0 +1,42 @@
+name: Install pnpm
+description: Install dependencies and pnpm cache
+
+runs:
+  using: composite
+  steps:
+    - uses: pnpm/action-setup@v4
+      with:
+        standalone: true
+        run_install: false
+        dest: ~/.pnpm
+
+    - name: Get pnpm store directory
+      id: pnpm-store-dir
+      run: echo "PNPM_STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Cache pnpm-store
+      uses: actions/cache@v4
+      id: pnpm-store
+      with:
+        path: ${{ env.PNPM_STORE_PATH }}
+        key: pnpm-store
+
+    - name: Cache node_modules
+      uses: actions/cache@v4
+      id: node-modules
+      with:
+        path: node_modules
+        key: node-modules
+
+    - name: Set github config
+      run: pnpm config set '//npm.pkg.github.com/:_authToken' "${GITHUB_AUTH_TOKEN}"
+      shell: bash
+
+    - name: Set npm config
+      run: pnpm config set '//registry.npmjs.org/:_authToken' "${NPM_AUTH_TOKEN}"
+      shell: bash
+
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+      shell: bash
