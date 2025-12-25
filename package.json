@@ -22,6 +22,7 @@
         "build": "tsup-node src/index.ts src/convert.ts --sourcemap --clean --dts --format cjs,esm",
         "dev": "pnpm build --watch",
         "lint": "echo lint",
+        "type-check": "echo type-check",
         "test": "echo test",
         "changeset": "changeset",
         "version": "changeset version && pnpm install --lockfile-only",
