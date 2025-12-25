@@ -1,68 +1,65 @@
 {
-    "name": "@ksv90/vite-plugin-meta",
-    "version": "0.0.0",
-    "description": "",
-    "license": "MIT",
-    "type": "module",
-    "main": "dist/index.cjs",
-    "module": "dist/index.js",
-    "types": "./dist/index.d.ts",
-    "exports": {
-        ".": {
-            "types": "./dist/index.d.ts",
-            "import": "./dist/index.js",
-            "require": "./dist/index.cjs"
-        }
-    },
-    "files": [
-        "dist",
-        "README.md"
-    ],
-    "scripts": {
-        "build": "tsup-node src/index.ts src/convert.ts --sourcemap --clean --dts --format cjs,esm",
-        "dev": "pnpm build --watch",
-        "lint": "echo lint",
-        "type-check": "echo type-check",
-        "test": "echo test",
-        "changeset": "changeset",
-        "version": "changeset version && pnpm install --lockfile-only",
-        "publish": "pnpm run build && changeset publish"
-    },
-    "bin": {
-        "file-convert": "dist/convert.js"
-    },
-    "dependencies": {
-        "ffmpeg-static": "^5.2.0",
-        "ffprobe": "^1.1.2",
-        "ffprobe-static": "^3.1.0",
-        "picocolors": "^1.0.0",
-        "sharp": "^0.33.2"
-    },
-    "devDependencies": {
-        "@changesets/changelog-github": "^0.5.1",
-        "@changesets/cli": "^2.29.7",
-        "@commitlint/cli": "^16.2.4",
-        "@commitlint/config-conventional": "^20.2.0",
-        "@commitlint/cz-commitlint": "^16.2.4",
-        "@types/node": "^25.0.3",
-        "tsup": "^8.5.0",
-        "typescript": "^5.2.2",
-        "vite": "^5.4.20"
-    },
-    "peerDependencies": {
-        "vite": "^5.4.8"
-    },
-    "peerDependenciesMeta": {
-        "vite": {
-            "optional": true
-        }
-    },
-    "engines": {
-        "node": ">=18",
-        "pnpm": ">=7"
-    },
-    "publishConfig": {
-        "registry": "https://npm.pkg.github.com"
-    },
-    "packageManager": "pnpm@9.4.0"
+	"name": "@ksv90/vite-plugin-meta",
+	"version": "0.0.0",
+	"description": "",
+	"license": "MIT",
+	"type": "module",
+	"main": "dist/index.cjs",
+	"module": "dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js",
+			"require": "./dist/index.cjs"
+		}
+	},
+	"files": [
+		"dist",
+		"README.md"
+	],
+	"scripts": {
+		"build": "tsup-node src/index.ts src/convert.ts --sourcemap --clean --dts --format cjs,esm",
+		"dev": "pnpm build --watch",
+		"lint": "echo lint",
+		"type-check": "echo type-check",
+		"test": "echo test"
+	},
+	"bin": {
+		"file-convert": "dist/convert.js"
+	},
+	"dependencies": {
+		"ffmpeg-static": "^5.2.0",
+		"ffprobe": "^1.1.2",
+		"ffprobe-static": "^3.1.0",
+		"picocolors": "^1.0.0",
+		"sharp": "^0.33.2"
+	},
+	"devDependencies": {
+		"@changesets/changelog-github": "^0.5.1",
+		"@changesets/cli": "^2.29.7",
+		"@commitlint/cli": "^16.2.4",
+		"@commitlint/config-conventional": "^20.2.0",
+		"@commitlint/cz-commitlint": "^16.2.4",
+		"@types/node": "^25.0.3",
+		"tsup": "^8.5.0",
+		"typescript": "^5.2.2",
+		"vite": "^5.4.20"
+	},
+	"peerDependencies": {
+		"vite": "^5.4.8"
+	},
+	"peerDependenciesMeta": {
+		"vite": {
+			"optional": true
+		}
+	},
+	"engines": {
+		"node": ">=18",
+		"pnpm": ">=7"
+	},
+	"publishConfig": {
+		"registry": "https://npm.pkg.github.com"
+	},
+	"packageManager": "pnpm@9.4.0"
 }
