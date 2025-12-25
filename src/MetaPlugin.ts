@@ -1,10 +1,13 @@
-import path from 'node:path';
 import { stat } from 'node:fs/promises';
+import path from 'node:path';
+
+import { createSoundsConfig, createTexturesConfig, createVideoConfig, getBasePath, replaceRoot } from './helpers';
 import {
 	checkDir,
-	convertImage,
 	convertAnimation,
+	convertImage,
 	convertSound,
+	convertVideo,
 	getAudioDuration,
 	getFileInfo,
 	getFilesPaths,
@@ -13,10 +16,8 @@ import {
 	removeFile,
 	transferFile,
 	writeConfig,
-	convertVideo,
 } from './processes';
 import { Ext, MAX_ANIMATION_SIZE, MetaPluginOption, Names, VideoCodecs } from './types';
-import { createSoundsConfig, createTexturesConfig, createVideoConfig, getBasePath, replaceRoot } from './helpers';
 import { fileLog } from './utils';
 
 const basicSoundSettings = '-vn -y -ar 44100 -ac 2';
@@ -54,6 +55,8 @@ export default class MetaPlugin {
 			metaConfigName: option.metaConfigName ?? Names.metaConfigName,
 			hashConfigName: option.hashConfigName ?? Names.hashConfigName,
 			storageDir: option.storageDir ?? Names.storageDir,
+			imageExt: option.imageExt ?? Ext.png,
+			soundExt: option.soundExt ?? Ext.wav,
 			selectFilesLog: option.selectFilesLog,
 			filesHashLog: option.filesHashLog,
 			convertLog: option.convertLog,
@@ -71,7 +74,7 @@ export default class MetaPlugin {
 		this.publicDir = publicDir;
 		const { exclude, publicLog } = this.option;
 		const imagesExt: ReadonlyArray<string> = [Ext.png, Ext.jpg, Ext.jpeg];
-		const soundsExt: ReadonlyArray<string> = [Ext.wav];
+		const soundsExt: ReadonlyArray<string> = [Ext.wav, Ext.mp3];
 		const animationsExt: ReadonlyArray<string> = [Ext.gif];
 		const videoExt: ReadonlyArray<string> = [Ext.mp4];
 
@@ -200,14 +203,15 @@ export default class MetaPlugin {
 	}
 
 	public async writeConfig(prod: boolean, dir: string): Promise<void> {
+		const { imageExt, soundExt } = this.option;
 		const jobs = [this.removeConfig()];
 		if (prod) jobs.push(...this.soundsFiles.map((soundPath) => removeFile(soundPath)));
 		await Promise.all(jobs);
 		const metaConfig = {
 			prod,
 			gameVersion: this.option.version,
-			textures: createTexturesConfig(prod),
-			sounds: createSoundsConfig(prod, this.trackDuration),
+			textures: createTexturesConfig(prod, imageExt),
+			sounds: createSoundsConfig(prod, this.trackDuration, soundExt),
 			video: createVideoConfig(prod),
 		};
 		this.configPath = path.join(dir, this.option.metaConfigName);
@@ -219,7 +223,8 @@ export default class MetaPlugin {
 		await writeConfig(configPath, this.filesHash);
 	}
 
-	private async checkFiles() {
+	private async checkFiles(): Promise<void> {
+		const { imageExt, soundExt } = this.option;
 		const imagesExt: ReadonlyArray<string> = [Ext.png, Ext.avif, Ext.webp];
 		const soundsExt: ReadonlyArray<string> = [Ext.m4a, Ext.mp3, Ext.ogg];
 		const animationsExt: ReadonlyArray<string> = [Ext.gif, Ext.webp, Ext.avif];
@@ -228,7 +233,7 @@ export default class MetaPlugin {
 			const extname = path.extname(filePath);
 			let newPath = replaceRoot(filePath, this.publicDir, path.sep);
 			if (imagesExt.includes(extname)) {
-				newPath = newPath.replace(extname, Ext.png);
+				newPath = newPath.replace(extname, imageExt);
 				if (this.imagesFiles.includes(newPath)) return;
 				if (this.animationsFiles.includes(newPath.replace(Ext.png, Ext.gif))) return;
 				await removeFile(filePath);
@@ -237,7 +242,7 @@ export default class MetaPlugin {
 				return;
 			}
 			if (soundsExt.includes(extname)) {
-				newPath = newPath.replace(extname, Ext.wav);
+				newPath = newPath.replace(extname, soundExt);
 				if (this.soundsFiles.includes(newPath)) return;
 				await removeFile(filePath);
 				if (this.option.fileChangeLog) fileLog('remove', filePath);

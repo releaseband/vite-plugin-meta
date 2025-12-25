@@ -3,15 +3,19 @@ import { Ext, SoundsConfig, TexturesConfig, TrackDuration, VideoCodecs, VideoCon
 export function waitConvert<TStream extends { on: (event: string, fn: (...arg: any[]) => void) => TStream }>(
 	stream: TStream
 ): Promise<void> {
-	return new Promise((resolve, reject) => stream.on('error', reject).on('end', resolve));
+	return new Promise((resolve, reject) => {
+		stream.on('error', reject);
+		stream.on('end', resolve);
+		stream.on('finish', resolve);
+	});
 }
 
-export function createTexturesConfig(prod: boolean): TexturesConfig {
-	return { formats: prod ? [Ext.avif, Ext.png, Ext.webp] : [Ext.png] };
+export function createTexturesConfig(prod: boolean, defaultExt: string): TexturesConfig {
+	return { formats: prod ? [Ext.avif, Ext.png, Ext.webp] : [defaultExt] };
 }
 
-export function createSoundsConfig(prod: boolean, trackDuration: TrackDuration): SoundsConfig {
-	return { formats: prod ? [Ext.m4a, Ext.mp3, Ext.ogg] : [Ext.wav], trackDuration };
+export function createSoundsConfig(prod: boolean, trackDuration: TrackDuration, defaultExt: string): SoundsConfig {
+	return { formats: prod ? [Ext.m4a, Ext.mp3, Ext.ogg] : [defaultExt], trackDuration };
 }
 
 export function createVideoConfig(prod: boolean): VideoConfig {

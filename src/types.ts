@@ -57,12 +57,14 @@ export type MetaPluginOption = {
 	readonly metaConfigName: string;
 	readonly hashConfigName: string;
 	readonly storageDir: string;
+	readonly imageExt: string;
+	readonly soundExt: string;
 	readonly selectFilesLog?: boolean;
 	readonly filesHashLog?: boolean;
 	readonly convertLog?: boolean;
 	readonly optionLog?: boolean;
 	readonly publicLog?: boolean;
 	readonly fileChangeLog?: boolean;
-	readonly losslessImages?: string[];
+	readonly losslessImages?: ReadonlyArray<string>;
 	readonly exclude: ReadonlyArray<string>;
 };
