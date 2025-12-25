@@ -21,6 +21,8 @@
     "scripts": {
         "build": "tsup-node src/index.ts src/convert.ts --sourcemap --clean --dts --format cjs,esm",
         "dev": "pnpm build --watch",
+        "lint": "echo lint",
+        "test": "echo test",
         "changeset": "changeset",
         "version": "changeset version && pnpm install --lockfile-only",
         "publish": "pnpm run build && changeset publish"
@@ -41,6 +43,7 @@
         "@commitlint/cli": "^16.2.4",
         "@commitlint/config-conventional": "^20.2.0",
         "@commitlint/cz-commitlint": "^16.2.4",
+        "@types/node": "^25.0.3",
         "tsup": "^8.5.0",
         "typescript": "^5.2.2",
         "vite": "^5.4.20"
