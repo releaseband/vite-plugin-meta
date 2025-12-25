@@ -1,5 +1,13 @@
 # @releaseband/vite-plugin-meta
 
+## [0.0.2](https://github.com/ksv90/vite-plugin-meta/compare/v0.0.1...v0.0.2) (2025-12-25)
+
+
+### Bug Fixes
+
+* default ext added ([b1bcf87](https://github.com/ksv90/vite-plugin-meta/commit/b1bcf8726de9a1ba25d4c06015e9b7defc539b97))
+* default ext added ([aa1380e](https://github.com/ksv90/vite-plugin-meta/commit/aa1380ef5392efc49672796ebd29ad1c04311555))
+
 ## 0.0.1 (2025-12-25)
 
 
