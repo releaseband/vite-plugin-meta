@@ -58,5 +58,8 @@
 		"node": ">=18",
 		"pnpm": ">=7"
 	},
+	"publishConfig": {
+		"registry": "https://npm.pkg.github.com"
+	},
 	"packageManager": "pnpm@9.4.0"
 }
