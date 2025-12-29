@@ -1,10 +1,11 @@
 import path from 'node:path';
 import process from 'node:process';
-import { Logger, PluginOption } from 'vite';
+
+import type { Logger, PluginOption } from 'vite';
 
 import MetaPlugin from './MetaPlugin';
-import { buildError, errorStack, greenText, redText } from './utils';
 import { MetaPluginOption } from './types';
+import { buildError, errorStack, greenText, redText } from './utils';
 
 export type PluginConfig = {
 	readonly command: 'build' | 'serve';

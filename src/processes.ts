@@ -1,15 +1,16 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import ffmpegStatic from 'ffmpeg-static';
 import { exec } from 'node:child_process';
-import { createReadStream, createWriteStream, readdirSync, statSync, existsSync, mkdirSync } from 'node:fs';
-import { unlink, writeFile, readFile, copyFile } from 'node:fs/promises';
-import { extname, join, sep, dirname } from 'node:path';
-import ffprobeStatic from 'ffprobe-static';
-import ffprobe, { type FileInfo } from 'ffprobe';
-import sharp from 'sharp';
 import { createHash } from 'node:crypto';
+import { createReadStream, existsSync, mkdirSync, readdirSync, statSync } from 'node:fs';
+import { copyFile, readFile, unlink, writeFile } from 'node:fs/promises';
+import { dirname, extname, join, sep } from 'node:path';
 
-import { replaceRoot, waitConvert } from './helpers';
+import ffmpegStatic from 'ffmpeg-static';
+import ffprobe, { type FileInfo } from 'ffprobe';
+import ffprobeStatic from 'ffprobe-static';
+import sharp from 'sharp';
+
+import { createImageStreams, replaceRoot, waitConvert } from './helpers';
 import { Ext, VideoCodecs } from './types';
 
 export function getFilesPaths(inputPath: string): ReadonlyArray<string> {
@@ -40,7 +41,7 @@ export function ffmpeg(...params: ReadonlyArray<string>): Promise<void> {
 	});
 }
 
-export async function removeFile(filePath: string) {
+export async function removeFile(filePath: string): Promise<void> {
 	try {
 		if (existsSync(filePath)) await unlink(filePath);
 	} catch (err) {
@@ -89,23 +90,35 @@ export async function transferFile(fromFilePath: string, toFilePath: string): Pr
 	try {
 		await copyFile(fromFilePath, toFilePath);
 	} catch (err) {
-		throw new Error(`${transferFile.name} error \n` + String(err));
+		throw new Error(`${transferFile.name} error \n${String(err)}`);
 	}
 }
 
-export async function convertImage(imagePath: string, storageDir: string, isLossLess = false): Promise<void> {
+export async function convertImage(
+	imagePath: string,
+	storageDir: string,
+	prefixes: readonly number[],
+	lossless = false,
+	quality?: number
+): Promise<void> {
 	const ext = extname(imagePath);
 	const newPath = replaceRoot(imagePath, storageDir, sep);
+
 	checkDir(dirname(newPath));
-	const factory = sharp();
-	const avif = factory.clone().avif({ lossless: isLossLess });
-	const webp = factory.clone().webp({ lossless: isLossLess });
-	const png = factory.clone().png({ palette: true, compressionLevel: isLossLess ? 0 : 9 });
-	const jobs = [waitConvert(avif), waitConvert(webp), waitConvert(png)];
-	avif.pipe(createWriteStream(newPath.replace(ext, Ext.avif)));
-	webp.pipe(createWriteStream(newPath.replace(ext, Ext.webp)));
-	png.pipe(createWriteStream(newPath.replace(ext, Ext.png)));
-	createReadStream(imagePath).pipe(factory);
+
+	const factory = sharp(imagePath);
+	const { width = 0, height = 0 } = await factory.metadata();
+
+	let streams = prefixes.flatMap((prefixKey) =>
+		createImageStreams(factory, { newPath, ext, width, height, quality, prefixKey, lossless })
+	);
+
+	if (!streams.length) {
+		streams = createImageStreams(factory, { newPath, ext, width, height, quality, lossless });
+	}
+
+	const jobs = streams.map(waitConvert);
+
 	try {
 		await Promise.all(jobs);
 		sharp.cache(false);
@@ -166,16 +179,20 @@ export async function convertVideo(
 	}
 }
 
-export async function makeHash(filePath: string): Promise<string> {
+export function makeHash(filePath: string): Promise<string> {
 	const readStream = createReadStream(filePath);
 	const hash = createHash('md5');
 	hash.setEncoding('hex');
 	return new Promise((resolve) => {
-		readStream.on('end', () => resolve(hash.end().read())).pipe(hash);
+		readStream
+			.on('end', () => {
+				resolve(hash.end().read());
+			})
+			.pipe(hash);
 	});
 }
 
-export function checkDir(dirPath: string, index = 1) {
+export function checkDir(dirPath: string, index = 1): void {
 	if (existsSync(dirPath)) return;
 	const splitPath = dirPath.split(sep).splice(0, index).join(sep);
 	if (!existsSync(splitPath)) mkdirSync(splitPath);
