@@ -1,7 +1,7 @@
 /* eslint-disable import/no-extraneous-dependencies */
 import { exec } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { createReadStream, createWriteStream, existsSync, mkdirSync, readdirSync, statSync } from 'node:fs';
+import { createReadStream, existsSync, mkdirSync, readdirSync, statSync } from 'node:fs';
 import { copyFile, readFile, unlink, writeFile } from 'node:fs/promises';
 import { dirname, extname, join, sep } from 'node:path';
 
@@ -10,7 +10,7 @@ import ffprobe, { type FileInfo } from 'ffprobe';
 import ffprobeStatic from 'ffprobe-static';
 import sharp from 'sharp';
 
-import { replaceRoot, waitConvert } from './helpers';
+import { createImageStreams, replaceRoot, waitConvert } from './helpers';
 import { Ext, VideoCodecs } from './types';
 
 export function getFilesPaths(inputPath: string): ReadonlyArray<string> {
@@ -94,19 +94,31 @@ export async function transferFile(fromFilePath: string, toFilePath: string): Pr
 	}
 }
 
-export async function convertImage(imagePath: string, storageDir: string, isLossLess = false): Promise<void> {
+export async function convertImage(
+	imagePath: string,
+	storageDir: string,
+	prefixes: readonly number[],
+	lossless = false,
+	quality?: number
+): Promise<void> {
 	const ext = extname(imagePath);
 	const newPath = replaceRoot(imagePath, storageDir, sep);
+
 	checkDir(dirname(newPath));
-	const factory = sharp();
-	const avif = factory.clone().avif({ lossless: isLossLess });
-	const webp = factory.clone().webp({ lossless: isLossLess });
-	const png = factory.clone().png({ palette: true, compressionLevel: isLossLess ? 0 : 9 });
-	const jobs = [waitConvert(avif), waitConvert(webp), waitConvert(png)];
-	avif.pipe(createWriteStream(newPath.replace(ext, Ext.avif)));
-	webp.pipe(createWriteStream(newPath.replace(ext, Ext.webp)));
-	png.pipe(createWriteStream(newPath.replace(ext, Ext.png)));
-	createReadStream(imagePath).pipe(factory);
+
+	const factory = sharp(imagePath);
+	const { width = 0, height = 0 } = await factory.metadata();
+
+	let streams = prefixes.flatMap((prefixKey) =>
+		createImageStreams(factory, { newPath, ext, width, height, quality, prefixKey, lossless })
+	);
+
+	if (!streams.length) {
+		streams = createImageStreams(factory, { newPath, ext, width, height, quality });
+	}
+
+	const jobs = streams.map(waitConvert);
+
 	try {
 		await Promise.all(jobs);
 		sharp.cache(false);
