@@ -29,10 +29,15 @@ export const enum VideoCodecs {
 
 export type FileFormats = ReadonlyArray<string>;
 
+export type TexturePrefixValue = `@${string}x`;
+
 export type TrackDuration = Readonly<Record<string, number>>;
+
+export type TexturePrefixes = Record<number, TexturePrefixValue>;
 
 export type TexturesConfig = {
 	readonly formats: FileFormats;
+	readonly prefixes?: TexturePrefixes;
 };
 
 export type SoundsConfig = {
@@ -67,4 +72,6 @@ export type MetaPluginOption = {
 	readonly fileChangeLog?: boolean;
 	readonly losslessImages?: ReadonlyArray<string>;
 	readonly exclude: ReadonlyArray<string>;
+	readonly prefixes?: ReadonlyArray<number>;
+	readonly quality?: number;
 };

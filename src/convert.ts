@@ -17,7 +17,11 @@ const enum Flags {
 	fileChangeLog = '--fileChangeLog',
 	exclude = '--exclude',
 	losslessImages = '--losslessImages',
+	quality = '--quality',
+	prefixes = '--prefixes',
 }
+
+const SEPARATOR = ',';
 
 export const strTrim = (str: string) => str.trim();
 
@@ -36,6 +40,8 @@ const rawImageExt = getParameter(Flags.imageExt);
 const rawSoundExt = getParameter(Flags.soundExt);
 const rawExclude = getParameter(Flags.exclude);
 const rawLosslessImages = getParameter(Flags.losslessImages);
+const rawQuality = getParameter(Flags.quality);
+const rawPrefixes = getParameter(Flags.prefixes);
 
 const plugin = new MetaPlugin({
 	storageDir: getParameter(Flags.storageDir) ?? Names.storageDir,
@@ -48,8 +54,10 @@ const plugin = new MetaPlugin({
 	optionLog: checkParameter(Flags.optionLog),
 	publicLog: checkParameter(Flags.publicLog),
 	fileChangeLog: checkParameter(Flags.fileChangeLog),
-	losslessImages: rawLosslessImages?.split(',').map(strTrim),
-	exclude: rawExclude?.split(',').map(strTrim),
+	losslessImages: rawLosslessImages?.split(SEPARATOR).map(strTrim),
+	exclude: rawExclude?.split(SEPARATOR).map(strTrim),
+	quality: rawQuality !== null ? Number(rawQuality) : void 0,
+	prefixes: rawPrefixes ? rawPrefixes.split(SEPARATOR).map(Number) : void 0,
 });
 
 const publicDir = getParameter(Flags.publicDir) ?? Names.publicDir;
