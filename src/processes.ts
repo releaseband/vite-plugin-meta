@@ -114,7 +114,7 @@ export async function convertImage(
 	);
 
 	if (!streams.length) {
-		streams = createImageStreams(factory, { newPath, ext, width, height, quality });
+		streams = createImageStreams(factory, { newPath, ext, width, height, quality, lossless });
 	}
 
 	const jobs = streams.map(waitConvert);
