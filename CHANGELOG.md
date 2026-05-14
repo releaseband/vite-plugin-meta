@@ -1,5 +1,11 @@
 # @releaseband/vite-plugin-meta
 
+## 0.6.0
+
+### Minor Changes
+
+- [#78](https://github.com/releaseband/vite-plugin-meta/pull/78) [`c39b293`](https://github.com/releaseband/vite-plugin-meta/commit/c39b2935f98cc8ebbdc16f3896db3ddfb7079562) Thanks [@DmitriyGolub](https://github.com/DmitriyGolub)! - Add configurable audio optimization options.
+
 ## 0.5.1
 
 ### Patch Changes
