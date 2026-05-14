@@ -15,19 +15,47 @@ import {
 	writeConfig,
 	convertVideo,
 } from './processes';
-import { Ext, MAX_ANIMATION_SIZE, MetaPluginOption, Names, VideoCodecs } from './types';
+import {
+	AudioOptimizationOptions,
+	defaultAudioOptimization,
+	Ext,
+	MAX_ANIMATION_SIZE,
+	MetaPluginOption,
+	Names,
+	RequiredAudioOptimizationOptions,
+	VideoCodecs,
+} from './types';
 import { createSoundsConfig, createTexturesConfig, createVideoConfig, getBasePath, replaceRoot } from './helpers';
 import { fileLog } from './utils';
 
-const basicSoundSettings = '-vn -y -ar 44100 -ac 2';
 const basicVideoSettings = '-pix_fmt yuv420p -map_metadata -1 -movflags +faststart';
-const formats = {
-	'.mp3': `${basicSoundSettings} -f mp3 -aq 6`,
-	'.ogg': `${basicSoundSettings} -acodec libvorbis -f ogg -aq 2`,
-	'.m4a': `${basicSoundSettings} -ab 96k -strict -2`,
-	'.mp4': `${basicVideoSettings} -c:a aac -c:v libx264 -crf 24 -preset veryslow -profile:v main`,
-	'.av1': `${basicVideoSettings} -c:a libopus -c:v libaom-av1 -crf 34 -b:v 0`,
-};
+
+function makeAudioOptimization(option: AudioOptimizationOptions = {}): RequiredAudioOptimizationOptions {
+	return {
+		sampleRate: option.sampleRate ?? defaultAudioOptimization.sampleRate,
+		channels: option.channels ?? defaultAudioOptimization.channels,
+		mp3Quality: option.mp3Quality ?? defaultAudioOptimization.mp3Quality,
+		oggQuality: option.oggQuality ?? defaultAudioOptimization.oggQuality,
+		m4aBitrate: option.m4aBitrate ?? defaultAudioOptimization.m4aBitrate,
+		m4aVbrQuality: option.m4aVbrQuality ?? defaultAudioOptimization.m4aVbrQuality,
+	};
+}
+
+function makeFormats(audioOptimization: RequiredAudioOptimizationOptions) {
+	const basicSoundSettings = `-vn -y -ar ${audioOptimization.sampleRate} -ac ${audioOptimization.channels}`;
+	const m4aQualitySettings =
+		audioOptimization.m4aVbrQuality === undefined
+			? `-ab ${audioOptimization.m4aBitrate}`
+			: `-q:a ${audioOptimization.m4aVbrQuality}`;
+
+	return {
+		'.mp3': `${basicSoundSettings} -f mp3 -aq ${audioOptimization.mp3Quality}`,
+		'.ogg': `${basicSoundSettings} -acodec libvorbis -f ogg -aq ${audioOptimization.oggQuality}`,
+		'.m4a': `${basicSoundSettings} ${m4aQualitySettings} -strict -2`,
+		'.mp4': `${basicVideoSettings} -c:a aac -c:v libx264 -crf 24 -preset veryslow -profile:v main`,
+		'.av1': `${basicVideoSettings} -c:a libopus -c:v libaom-av1 -crf 34 -b:v 0`,
+	};
+}
 
 export default class MetaPlugin {
 	private configPath?: string;
@@ -48,7 +76,10 @@ export default class MetaPlugin {
 
 	private readonly option: MetaPluginOption;
 
+	private readonly formats: ReturnType<typeof makeFormats>;
+
 	constructor(option: Partial<MetaPluginOption> = {}) {
+		const audioOptimization = makeAudioOptimization(option.audioOptimization);
 		this.option = {
 			version: option.version ?? '0.0.0',
 			metaConfigName: option.metaConfigName ?? Names.metaConfigName,
@@ -61,8 +92,10 @@ export default class MetaPlugin {
 			publicLog: option.publicLog,
 			fileChangeLog: option.fileChangeLog,
 			losslessImages: option.losslessImages,
+			audioOptimization,
 			exclude: option.exclude?.map((filePath) => filePath.replaceAll('/', path.sep)) ?? [],
 		};
+		this.formats = makeFormats(audioOptimization);
 
 		if (option.optionLog) console.log(this.option);
 	}
@@ -147,7 +180,7 @@ export default class MetaPlugin {
 				if (this.option.convertLog) console.log(soundPath, this.filesHash[soundPath], fileHash);
 				if (this.filesHash[soundPath] === fileHash) return;
 				if (this.option.fileChangeLog) fileLog(`file conversion "${soundPath}" started`);
-				await convertSound(soundPath, formats, this.option.storageDir);
+				await convertSound(soundPath, this.formats, this.option.storageDir);
 				if (this.option.fileChangeLog) fileLog('add', soundPath);
 				this.filesHash[soundPath] = fileHash;
 			} catch (err) {
@@ -189,7 +222,7 @@ export default class MetaPlugin {
 				if (this.option.convertLog) console.log(videoPath, this.filesHash[videoPath], fileHash);
 				if (this.filesHash[videoPath] === fileHash) return;
 				if (this.option.fileChangeLog) fileLog(`file conversion "${videoPath}" started`);
-				await convertVideo(videoPath, formats, this.option.storageDir);
+				await convertVideo(videoPath, this.formats, this.option.storageDir);
 				if (this.option.fileChangeLog) fileLog('add', videoPath);
 				this.filesHash[videoPath] = fileHash;
 			} catch (err) {

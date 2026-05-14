@@ -44,6 +44,25 @@ export type VideoConfig = {
 	readonly codecs: ReadonlyArray<string>;
 };
 
+export const defaultAudioOptimization = {
+	sampleRate: 44100,
+	channels: 2,
+	mp3Quality: 6,
+	oggQuality: 2,
+	m4aBitrate: '96k',
+	m4aVbrQuality: undefined as number | undefined,
+} as const;
+
+type WidenDefaultOption<T> = T extends number ? number : T extends string ? string : T;
+
+export type RequiredAudioOptimizationOptions = {
+	readonly [Key in keyof typeof defaultAudioOptimization]: WidenDefaultOption<(typeof defaultAudioOptimization)[Key]>;
+};
+
+export type AudioOptimizationOptions = {
+	readonly [Key in keyof RequiredAudioOptimizationOptions]?: RequiredAudioOptimizationOptions[Key];
+};
+
 export type MetaConfig = {
 	readonly prod: boolean;
 	readonly gameVersion: string;
@@ -64,5 +83,6 @@ export type MetaPluginOption = {
 	readonly publicLog?: boolean;
 	readonly fileChangeLog?: boolean;
 	readonly losslessImages?: string[];
+	readonly audioOptimization?: AudioOptimizationOptions;
 	readonly exclude: ReadonlyArray<string>;
 };
