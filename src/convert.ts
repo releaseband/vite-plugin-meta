@@ -14,6 +14,12 @@ const enum Flags {
 	fileChangeLog = '--fileChangeLog',
 	exclude = '--exclude',
 	losslessImages = '--losslessImages',
+	audioSampleRate = '--audioSampleRate',
+	audioChannels = '--audioChannels',
+	mp3Quality = '--mp3Quality',
+	oggQuality = '--oggQuality',
+	m4aBitrate = '--m4aBitrate',
+	m4aVbrQuality = '--m4aVbrQuality',
 }
 
 export const getParameter = (key: string): string | null => {
@@ -25,6 +31,14 @@ export const getParameter = (key: string): string | null => {
 export const checkParameter = (key: string): boolean => {
 	const index = process.argv.findIndex((str) => str === key);
 	return index !== -1;
+};
+
+export const getNumberParameter = (key: string): number | undefined => {
+	const value = getParameter(key);
+	if (!value) return undefined;
+	const numberValue = Number(value);
+	if (Number.isNaN(numberValue)) throw new Error(`${key} must be a number`);
+	return numberValue;
 };
 
 const plugin = new MetaPlugin({
@@ -39,6 +53,14 @@ const plugin = new MetaPlugin({
 	losslessImages: getParameter(Flags.losslessImages)
 		?.split(',')
 		.map((path) => path.trim()),
+	audioOptimization: {
+		sampleRate: getNumberParameter(Flags.audioSampleRate),
+		channels: getNumberParameter(Flags.audioChannels),
+		mp3Quality: getNumberParameter(Flags.mp3Quality),
+		oggQuality: getNumberParameter(Flags.oggQuality),
+		m4aBitrate: getParameter(Flags.m4aBitrate) ?? undefined,
+		m4aVbrQuality: getNumberParameter(Flags.m4aVbrQuality),
+	},
 	exclude: getParameter(Flags.exclude)
 		?.split(',')
 		.map((file) => file.trim()),
