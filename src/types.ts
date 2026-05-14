@@ -44,6 +44,14 @@ export type VideoConfig = {
 	readonly codecs: ReadonlyArray<string>;
 };
 
+export type AudioOptimizationOptions = {
+	readonly sampleRate?: number;
+	readonly channels?: number;
+	readonly mp3Quality?: number;
+	readonly oggQuality?: number;
+	readonly m4aBitrate?: string;
+};
+
 export type MetaConfig = {
 	readonly prod: boolean;
 	readonly gameVersion: string;
@@ -64,5 +72,6 @@ export type MetaPluginOption = {
 	readonly publicLog?: boolean;
 	readonly fileChangeLog?: boolean;
 	readonly losslessImages?: string[];
+	readonly audioOptimization: AudioOptimizationOptions;
 	readonly exclude: ReadonlyArray<string>;
 };
