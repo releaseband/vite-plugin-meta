@@ -20,14 +20,10 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@v4
 
-      - name: Read Node.js version
-        id: node-version
-        run: echo "version=$(pnpm config get use-node-version)" >> "$GITHUB_OUTPUT"
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ steps.node-version.outputs.version }}
+          node-version-file: .nvmrc
           cache: pnpm
           registry-url: 'https://npm.pkg.github.com'
 
