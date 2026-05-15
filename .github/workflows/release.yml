@@ -12,18 +12,22 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           # This makes Actions fetch all Git history so that Changesets can generate changelogs with the correct commits
           fetch-depth: 0
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v2
+        uses: pnpm/action-setup@v4
+
+      - name: Read Node.js version
+        id: node-version
+        run: echo "version=$(pnpm config get use-node-version)" >> "$GITHUB_OUTPUT"
 
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version-file: package.json
+          node-version: ${{ steps.node-version.outputs.version }}
           cache: pnpm
           registry-url: 'https://npm.pkg.github.com'
 
