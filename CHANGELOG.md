@@ -1,5 +1,11 @@
 # @releaseband/vite-plugin-meta
 
+## 0.6.1
+
+### Patch Changes
+
+- [#82](https://github.com/releaseband/vite-plugin-meta/pull/82) [`6bdd4c8`](https://github.com/releaseband/vite-plugin-meta/commit/6bdd4c8f42cf8138409f6b082510b999bdba47f3) Thanks [@DmitriyGolub](https://github.com/DmitriyGolub)! - Invalidate audio conversion cache when audio optimization options change.
+
 ## 0.6.0
 
 ### Minor Changes
