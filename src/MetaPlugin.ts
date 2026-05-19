@@ -176,7 +176,7 @@ export default class MetaPlugin {
 	private async soundsConversionProcess(): Promise<void> {
 		const jobs = this.soundsFiles.map(async (soundPath) => {
 			try {
-				const fileHash = await makeHash(soundPath);
+				const fileHash = `${await makeHash(soundPath)}:${JSON.stringify(this.formats)}`;
 				if (this.option.convertLog) console.log(soundPath, this.filesHash[soundPath], fileHash);
 				if (this.filesHash[soundPath] === fileHash) return;
 				if (this.option.fileChangeLog) fileLog(`file conversion "${soundPath}" started`);
