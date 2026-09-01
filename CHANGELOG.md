@@ -1,5 +1,11 @@
 # @releaseband/vite-plugin-meta
 
+## 0.6.2
+
+### Patch Changes
+
+- [#85](https://github.com/releaseband/vite-plugin-meta/pull/85) [`f8997a7`](https://github.com/releaseband/vite-plugin-meta/commit/f8997a7a35ac4a177e859562a1a8a34340c9e35a) Thanks [@sanshan](https://github.com/sanshan)! - Fix `resourceCache` keying so it works with an absolute `--outDir`/`publicDir` (as passed by the variant build executor), not just a short relative one. `replaceRoot` now computes the cache key via `path.relative(base, filePath)` instead of naively swapping the first path segment, which fixes an `ENOENT` in `transferFile` for absolute paths while leaving the relative-path case (all existing games) byte-for-byte unchanged.
+
 ## 0.6.1
 
 ### Patch Changes
