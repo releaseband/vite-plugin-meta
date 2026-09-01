@@ -93,9 +93,14 @@ export async function transferFile(fromFilePath: string, toFilePath: string): Pr
 	}
 }
 
-export async function convertImage(imagePath: string, storageDir: string, isLossLess = false): Promise<void> {
+export async function convertImage(
+	imagePath: string,
+	publicDir: string,
+	storageDir: string,
+	isLossLess = false
+): Promise<void> {
 	const ext = extname(imagePath);
-	const newPath = replaceRoot(imagePath, storageDir, sep);
+	const newPath = replaceRoot(imagePath, publicDir, storageDir, sep);
 	checkDir(dirname(newPath));
 	const factory = sharp();
 	const avif = factory.clone().avif({ lossless: isLossLess });
@@ -114,9 +119,9 @@ export async function convertImage(imagePath: string, storageDir: string, isLoss
 	}
 }
 
-export async function convertAnimation(animationPath: string, storageDir: string): Promise<void> {
+export async function convertAnimation(animationPath: string, publicDir: string, storageDir: string): Promise<void> {
 	const ext = extname(animationPath);
-	const newPath = replaceRoot(animationPath, storageDir, sep);
+	const newPath = replaceRoot(animationPath, publicDir, storageDir, sep);
 	checkDir(dirname(newPath));
 	try {
 		await Promise.all([
@@ -131,11 +136,12 @@ export async function convertAnimation(animationPath: string, storageDir: string
 
 export async function convertSound(
 	soundPath: string,
+	publicDir: string,
 	formatsOptions: Record<Extract<Ext, Ext.mp3 | Ext.ogg | Ext.m4a>, string>,
 	storageDir: string
 ): Promise<void> {
 	const ext = extname(soundPath);
-	const newPath = replaceRoot(soundPath, storageDir, sep);
+	const newPath = replaceRoot(soundPath, publicDir, storageDir, sep);
 	checkDir(dirname(newPath));
 	try {
 		await Promise.all([
@@ -150,11 +156,12 @@ export async function convertSound(
 
 export async function convertVideo(
 	videoPath: string,
+	publicDir: string,
 	formatsOptions: Record<Extract<Ext, Ext.mp4 | Ext.av1>, string>,
 	storageDir: string
 ): Promise<void> {
 	const ext = extname(videoPath);
-	const newPath = replaceRoot(videoPath, storageDir, sep);
+	const newPath = replaceRoot(videoPath, publicDir, storageDir, sep);
 	checkDir(dirname(newPath));
 	try {
 		await Promise.all([
