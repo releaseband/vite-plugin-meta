@@ -1,3 +1,5 @@
+import path from 'node:path';
+
 import { Ext, SoundsConfig, TexturesConfig, TrackDuration, VideoCodecs, VideoConfig } from './types';
 
 export function waitConvert<TStream extends { on: (event: string, fn: (...arg: any[]) => void) => TStream }>(
@@ -22,10 +24,10 @@ export function getBasePath(fullPath: string, sep: string): string {
 	return fullPath.split(sep).slice(1).join(sep);
 }
 
-export function replaceRoot(filePath: string, root: string, sep: string): string {
+// path.relative(base, filePath) instead of swapping filePath's first segment, so this
+// still works when base/filePath are absolute (e.g. an absolute --outDir), not just short names.
+export function replaceRoot(filePath: string, base: string, root: string, sep: string): string {
 	if (!filePath) throw new Error(`${replaceRoot.name} filePath error`);
-	let splitPath = filePath.split(sep);
-	if (splitPath.length === 1) splitPath = [root, filePath];
-	else splitPath[0] = root;
-	return splitPath.join(sep);
+	const relativePath = path.relative(base, filePath).split(path.sep).join(sep);
+	return [root, relativePath].join(sep);
 }

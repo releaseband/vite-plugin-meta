@@ -163,7 +163,7 @@ export default class MetaPlugin {
 				if (this.filesHash[imagePath] === fileHash) return;
 				if (this.option.fileChangeLog) fileLog(`file conversion "${imagePath}" started`);
 				const isLossLess = patterns.some((pattern) => pattern.test(forwardSepImagePath));
-				await convertImage(imagePath, this.option.storageDir, isLossLess);
+				await convertImage(imagePath, this.publicDir, this.option.storageDir, isLossLess);
 				if (this.option.fileChangeLog) fileLog('add', imagePath);
 				this.filesHash[imagePath] = fileHash;
 			} catch (err) {
@@ -180,7 +180,7 @@ export default class MetaPlugin {
 				if (this.option.convertLog) console.log(soundPath, this.filesHash[soundPath], fileHash);
 				if (this.filesHash[soundPath] === fileHash) return;
 				if (this.option.fileChangeLog) fileLog(`file conversion "${soundPath}" started`);
-				await convertSound(soundPath, this.formats, this.option.storageDir);
+				await convertSound(soundPath, this.publicDir, this.formats, this.option.storageDir);
 				if (this.option.fileChangeLog) fileLog('add', soundPath);
 				this.filesHash[soundPath] = fileHash;
 			} catch (err) {
@@ -205,7 +205,7 @@ export default class MetaPlugin {
 				if (nb_frames && +nb_frames > 50) {
 					console.warn(`image "${animationPath}" contains ${nb_frames} frames`);
 				}
-				await convertAnimation(animationPath, this.option.storageDir);
+				await convertAnimation(animationPath, this.publicDir, this.option.storageDir);
 				if (this.option.fileChangeLog) fileLog('add', animationPath);
 				this.filesHash[animationPath] = fileHash;
 			} catch (err) {
@@ -222,7 +222,7 @@ export default class MetaPlugin {
 				if (this.option.convertLog) console.log(videoPath, this.filesHash[videoPath], fileHash);
 				if (this.filesHash[videoPath] === fileHash) return;
 				if (this.option.fileChangeLog) fileLog(`file conversion "${videoPath}" started`);
-				await convertVideo(videoPath, this.formats, this.option.storageDir);
+				await convertVideo(videoPath, this.publicDir, this.formats, this.option.storageDir);
 				if (this.option.fileChangeLog) fileLog('add', videoPath);
 				this.filesHash[videoPath] = fileHash;
 			} catch (err) {
@@ -259,7 +259,7 @@ export default class MetaPlugin {
 		const videosExt: ReadonlyArray<string> = [Ext.mp4];
 		const jobs = getFilesPaths(this.option.storageDir).map(async (filePath) => {
 			const extname = path.extname(filePath);
-			let newPath = replaceRoot(filePath, this.publicDir, path.sep);
+			let newPath = replaceRoot(filePath, this.option.storageDir, this.publicDir, path.sep);
 			if (imagesExt.includes(extname)) {
 				newPath = newPath.replace(extname, Ext.png);
 				if (this.imagesFiles.includes(newPath)) return;
@@ -309,7 +309,7 @@ export default class MetaPlugin {
 	public async transferProcess(): Promise<void> {
 		const imagesJobs = this.imagesFiles.map(async (filePath) => {
 			const ext = path.extname(filePath);
-			const newPath = replaceRoot(filePath, this.option.storageDir, path.sep);
+			const newPath = replaceRoot(filePath, this.publicDir, this.option.storageDir, path.sep);
 			await removeFile(filePath);
 			await Promise.all([
 				transferFile(newPath.replace(ext, Ext.png), filePath.replace(ext, Ext.png)),
@@ -320,7 +320,7 @@ export default class MetaPlugin {
 		await Promise.all(imagesJobs);
 		const soundJobs = this.soundsFiles.map(async (filePath) => {
 			const ext = path.extname(filePath);
-			const newPath = replaceRoot(filePath, this.option.storageDir, path.sep);
+			const newPath = replaceRoot(filePath, this.publicDir, this.option.storageDir, path.sep);
 			await removeFile(filePath);
 			await Promise.all([
 				transferFile(newPath.replace(ext, Ext.m4a), filePath.replace(ext, Ext.m4a)),
@@ -331,7 +331,7 @@ export default class MetaPlugin {
 		await Promise.all(soundJobs);
 		const animationJobs = this.animationsFiles.map(async (filePath) => {
 			const ext = path.extname(filePath);
-			const newPath = replaceRoot(filePath, this.option.storageDir, path.sep);
+			const newPath = replaceRoot(filePath, this.publicDir, this.option.storageDir, path.sep);
 			await removeFile(filePath);
 			await Promise.all([
 				transferFile(newPath.replace(ext, Ext.gif), filePath.replace(ext, Ext.gif)),
@@ -342,7 +342,7 @@ export default class MetaPlugin {
 		await Promise.all(animationJobs);
 		const videoJobs = this.videoFiles.map(async (filePath) => {
 			const ext = path.extname(filePath);
-			const newPath = replaceRoot(filePath, this.option.storageDir, path.sep);
+			const newPath = replaceRoot(filePath, this.publicDir, this.option.storageDir, path.sep);
 			await removeFile(filePath);
 			const videoExt = `.${VideoCodecs.av1}${Ext.mp4}`;
 			await Promise.all([
