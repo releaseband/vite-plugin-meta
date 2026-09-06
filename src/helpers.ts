@@ -20,8 +20,10 @@ export function createVideoConfig(prod: boolean): VideoConfig {
 	return { codecs: prod ? [VideoCodecs.h264, VideoCodecs.av1] : [VideoCodecs.h264] };
 }
 
-export function getBasePath(fullPath: string, sep: string): string {
-	return fullPath.split(sep).slice(1).join(sep);
+// path.relative(base, fullPath) instead of swapping fullPath's first segment, so this
+// still works when base/fullPath are absolute (e.g. an absolute --outDir), not just short names.
+export function getBasePath(fullPath: string, base: string, sep: string): string {
+	return path.relative(base, fullPath).split(path.sep).join(sep);
 }
 
 // path.relative(base, filePath) instead of swapping filePath's first segment, so this
