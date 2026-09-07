@@ -1,7 +1,29 @@
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-import { replaceRoot } from './helpers';
+import { getBasePath, replaceRoot } from './helpers';
+
+describe('getBasePath', () => {
+	it('keeps the previous behaviour for a short relative base/fullPath (existing games)', () => {
+		const base = 'build';
+		const fullPath = path.join('build', 'spine_audio', 'poster.wav');
+
+		expect(getBasePath(fullPath, base, path.sep)).toBe(path.join('spine_audio', 'poster.wav'));
+	});
+
+	it('keeps the previous behaviour for a file directly inside base (no nested folders)', () => {
+		const fullPath = path.join('build', 'poster.wav');
+
+		expect(getBasePath(fullPath, 'build', path.sep)).toBe('poster.wav');
+	});
+
+	it('resolves correctly for an absolute base/fullPath (variant build --outDir)', () => {
+		const base = path.join(path.sep, 'tmp', 'absolute-dist-target');
+		const fullPath = path.join(base, 'spine_audio', 'poster.wav');
+
+		expect(getBasePath(fullPath, base, path.sep)).toBe(path.join('spine_audio', 'poster.wav'));
+	});
+});
 
 describe('replaceRoot', () => {
 	it('keeps the previous behaviour for a short relative base/filePath (existing games)', () => {

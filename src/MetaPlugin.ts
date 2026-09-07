@@ -143,7 +143,7 @@ export default class MetaPlugin {
 		const jobs = this.soundsFiles.map(async (soundPath) => {
 			try {
 				const audioDuration = await getAudioDuration(soundPath);
-				let key = getBasePath(soundPath, path.sep);
+				let key = getBasePath(soundPath, this.publicDir, path.sep);
 				if (path.sep !== '/') key = key.replaceAll(path.sep, '/');
 				this.trackDuration[key] = audioDuration;
 			} catch (err) {
